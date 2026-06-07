@@ -191,12 +191,14 @@
     <div class="grp">
       <h2>Skala / kalibracja</h2>
       <div class="field"><label>Metrów na 100 px</label><input id="scale" type="number" value="5" step="0.5"></div>
-      <div class="hint">Wgraj plan jako tło i ustaw skalę tak, by odległości zgadzały się z rzeczywistością.</div>
+      <button class="tbtn" id="btnCal" style="width:100%">📏 Kalibruj skalę dwoma punktami</button>
+      <div class="hint">Najpewniejszy sposób: kliknij na planie dwa punkty o znanej odległości (np. znany wymiar pomieszczenia), a program sam wyliczy skalę.</div>
       <button class="tbtn" id="btnBg" style="margin-top:8px;width:100%">Wgraj podkład (JPG / PNG / PDF)</button>
+      <button class="tbtn" id="btnBgClear" style="margin-top:6px;width:100%;display:none;border-color:#f85149;color:#f85149">Usuń podkład</button>
       <input type="file" id="fileBg" accept="image/*,application/pdf" hidden>
       <div class="field" style="margin-top:10px;margin-bottom:0">
         <label>Krycie planu <span id="bgOpVal" class="mono" style="color:var(--acc2)">80%</span></label>
-        <input id="bgOp" type="range" min="10" max="100" value="80" style="width:100%">
+        <input id="bgOp" type="range" min="0" max="100" value="80" style="width:100%">
       </div>
     </div>
 
@@ -224,6 +226,7 @@
     <div class="stagebar">
       <div class="pill">REF (0): <b id="refName">— brak —</b> <button id="setRefHint">?</button></div>
       <div class="pill" id="anglePill" style="display:none">Kąt zaznacz.: <b id="angleVal">0°</b></div>
+      <div class="pill" id="calPill" style="display:none;border-color:var(--acc);color:var(--acc)"><b id="calMsg">Kalibracja</b> <button id="calCancel" style="color:var(--dim)">✕</button></div>
     </div>
     <div class="legend">
       <div><span style="color:var(--acc)">●</span> obrót: uchwyt na obwodzie · klik = zaznacz</div>
@@ -237,8 +240,13 @@
       <div class="lbl">Delay zaznaczonego elementu</div>
       <div class="v"><span id="selDelay">—</span><span class="u"> ms</span></div>
       <div class="lbl mono" id="selSamples" style="margin-top:4px;color:var(--acc2)"></div>
+      <div class="lbl mono" id="selDist" style="margin-top:6px;color:var(--dim);font-size:10px"></div>
+      <div class="hint" id="negNote" style="display:none;color:var(--warn)">⚠ Delay ujemny — ten głośnik leży przed REF (jego dźwięk dotarłby wcześniej). Procesory nie robią ujemnego opóźnienia; ustaw ten głośnik jako REF (0) dwuklikiem.</div>
       <div id="selEdit" style="display:none;margin-top:12px;text-align:left">
         <div class="field" style="margin-bottom:8px"><label>Nazwa elementu</label><input id="selLabel" type="text"></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);margin-bottom:10px;cursor:pointer">
+          <input id="selSrc" type="checkbox" style="width:auto"> Źródło — gra razem z REF (bez opóźnienia)
+        </label>
         <div class="field" style="margin-bottom:0"><label>Latencja urządzenia/DSP [ms]</label><input id="selLat" type="number" step="0.1" value="0"></div>
         <div class="hint" id="subNote" style="display:none;color:var(--warn)">⚠ Sub: delay geometryczny to tylko punkt startowy — alignment z topami rób pomiarem (faza/crossover).</div>
       </div>
@@ -268,6 +276,8 @@ let sel=null, view={zoom:1,ox:0,oy:0};
 // domyślny kierunek grania nowych głośników (kąt w rad; 0 = w prawo)
 const DIR_ANGLE={right:0, down:Math.PI/2, left:Math.PI, up:-Math.PI/2};
 let frontDir='right';
+// kalibracja skali: tryb i punkty (we współrzędnych świata)
+let calMode=false, calPts=[];
 
 // palette
 const pal=$('#palette');
@@ -295,7 +305,7 @@ window.addEventListener('resize',resize);
 function addEl(type,x,y){
   const id=Date.now()+Math.random();
   const label=TYPES[type].nm.split(' ')[0]+' '+(state.els.filter(e=>e.type===type).length+1);
-  const el={id,type,x,y,angle:DIR_ANGLE[frontDir],label,lat:0};
+  const el={id,type,x,y,angle:DIR_ANGLE[frontDir],label,lat:0,src:(type==='main')};
   state.els.push(el);
   if(type==='main' && state.refId===null){state.refId=id;}
   if(state.refId===null) state.refId=id;
@@ -311,12 +321,14 @@ cv.addEventListener('drop',e=>{
 });
 
 // distance & delay
-function distM(a,b){const dx=a.x-b.x,dy=a.y-b.y;return Math.hypot(dx,dy)*metersPerPx();}
+function distM(a,b){const dx=a.x-b.x,dy=a.y-b.y;return Math.hypot(dx,dy)*metersPerPx();} // odległość w linii prostej
+function isSource(el){return el.src===true;} // źródło = gra razem z REF, bez opóźnienia
 function delayMs(el){
   if(!state.refId)return 0;
-  const ref=state.els.find(e=>e.id===state.refId);if(!ref||el.id===ref.id)return 0;
-  const d=distM(el,ref);
-  const latDiff=(ref.lat||0)-(el.lat||0); // korekta różnicy latencji urządzeń
+  const r=state.els.find(e=>e.id===state.refId);if(!r||el.id===r.id)return 0;
+  if(isSource(el))return 0; // źródła nie są opóźniane względem REF
+  const d=distM(el,r); // odległość w linii prostej od Main 1 (REF)
+  const latDiff=(r.lat||0)-(el.lat||0); // korekta różnicy latencji urządzeń
   return d/speedOfSound()*1000 + parseFloat($('#haas').value||0) + latDiff;
 }
 
@@ -332,8 +344,27 @@ function hit(mx,my){
   return null;
 }
 function getXY(e){const r=cv.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};}
+function calClick(x,y){
+  // x,y w pikselach ekranu → współrzędne świata
+  const wx=(x-view.ox)/view.zoom, wy=(y-view.oy)/view.zoom;
+  calPts.push({x:wx,y:wy});
+  if(calPts.length===1){$('#calMsg').textContent='Kliknij drugi punkt';draw();return;}
+  // mamy dwa punkty — zapytaj o rzeczywistą odległość
+  const px=Math.hypot(calPts[0].x-calPts[1].x, calPts[0].y-calPts[1].y); // dystans w px (świat = px przy zoom 1)
+  draw();
+  const ans=prompt('Rzeczywista odległość między klikniętymi punktami [metry]:','10');
+  const meters=parseFloat((ans||'').replace(',','.'));
+  if(meters>0 && px>0){
+    const mppx=meters/px;          // metrów na 1 px
+    $('#scale').value=(mppx*100).toFixed(3); // metrów na 100 px
+  }
+  endCal();renderTable();
+}
+function endCal(){calMode=false;calPts=[];$('#calPill').style.display='none';$('#btnCal').classList.remove('pri');cv.style.cursor='';draw();}
 function down(e){
-  const{x,y}=getXY(e);const h=hit(x,y);
+  const{x,y}=getXY(e);
+  if(calMode){calClick(x,y);return;}
+  const h=hit(x,y);
   if(h){sel=h.el;drag={mode:h.mode,el:h.el};draw();renderTable();}
   else{sel=null;drag={mode:'pan',sx:x-view.ox,sy:y-view.oy};draw();renderTable();}
 }
@@ -349,6 +380,7 @@ cv.addEventListener('mousedown',down);window.addEventListener('mousemove',move);
 // touch: najpierw wykryj podwójny tap (ustaw REF), potem zwykła interakcja
 let lastTap=0,lastTapXY=null;
 cv.addEventListener('touchstart',e=>{
+  if(calMode){e.preventDefault();const{x,y}=getXY(e);calClick(x,y);return;}
   const now=Date.now();const{x,y}=getXY(e);
   if(now-lastTap<300 && lastTapXY && Math.hypot(x-lastTapXY.x,y-lastTapXY.y)<30){
     e.preventDefault(); // blokuje double-tap zoom tylko na płótnie
@@ -387,10 +419,19 @@ function draw(){
   });}
   // elements
   state.els.forEach(e=>drawEl(e,e.id===state.refId,e===sel));
+  // punkty kalibracji
+  if(calMode && calPts.length){
+    ctx.strokeStyle=getCSS('--acc');ctx.fillStyle=getCSS('--acc');ctx.lineWidth=2;
+    const sp=calPts.map(p=>({x:p.x*view.zoom+view.ox,y:p.y*view.zoom+view.oy}));
+    if(sp.length===2){ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(sp[0].x,sp[0].y);ctx.lineTo(sp[1].x,sp[1].y);ctx.stroke();ctx.setLineDash([]);}
+    sp.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,5,0,7);ctx.fill();
+      ctx.beginPath();ctx.moveTo(p.x-9,p.y);ctx.lineTo(p.x+9,p.y);ctx.moveTo(p.x,p.y-9);ctx.lineTo(p.x,p.y+9);ctx.stroke();});
+  }
   $('#refName').textContent=ref?ref.label:'— brak —';
   if(sel){$('#anglePill').style.display='';$('#angleVal').textContent=Math.round((sel.angle*180/Math.PI+90+360)%360)+'°';}
   else $('#anglePill').style.display='none';
 }
+function getCSS(v){return getComputedStyle(document.body).getPropertyValue(v).trim()||'#ff6b1a';}
 function drawEl(e,isRef,isSel){
   const x=e.x*view.zoom+view.ox,y=e.y*view.zoom+view.oy;const c=TYPES[e.type].col;
   // coverage cone
@@ -408,8 +449,11 @@ function drawEl(e,isRef,isSel){
   ctx.fillStyle=isRef?c:TH.labelTxt;ctx.font='700 11px JetBrains Mono';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText(isRef?'0':'',x,y);
   // label box
-  const dm=delayMs(e),dist=isRef?0:(ref()?distM(e,ref()):0);
-  const txt=isRef?e.label+' · REF':`${e.label}  ${dist.toFixed(1)}m  ${dm.toFixed(1)}ms`;
+  const dm=delayMs(e),dist=isRef?0:distM(e,ref());
+  let txt;
+  if(isRef) txt=e.label+' · REF';
+  else if(isSource(e)) txt=`${e.label}  ${dist.toFixed(1)}m  źródło`;
+  else txt=`${e.label}  ${dist.toFixed(1)}m  ${dm.toFixed(1)}ms`;
   ctx.font='600 11px Archivo';const w=ctx.measureText(txt).width+14;
   ctx.fillStyle=TH.labelBg;ctx.strokeStyle=isSel?c:TH.grid;
   roundRect(x+18,y-10,w,20,5);ctx.fill();ctx.stroke();
@@ -424,19 +468,23 @@ function renderTableRows(){
   $('#tblEmpty').style.display=state.els.length?'none':'block';
   $('#tbl').style.display=state.els.length?'table':'none';
   state.els.forEach(e=>{
-    const isRef=e.id===state.refId;const dm=delayMs(e);const dist=isRef?0:(ref()?distM(e,ref()):0);
+    const isRef=e.id===state.refId;const dm=delayMs(e);const dist=isRef?0:distM(e,ref());
+    const dCol=isRef?'REF':(isSource(e)?'źródło':dm.toFixed(1)+'ms');
     const tr=document.createElement('tr');if(e===sel)tr.className='sel';
     tr.innerHTML=`<td><span class="sw" style="background:${TYPES[e.type].col}"></span>${e.label}${isRef?' (0)':''}</td>
-      <td>${dist.toFixed(1)}m</td><td>${isRef?'REF':dm.toFixed(1)+'ms'}</td>
+      <td>${dist.toFixed(1)}m</td><td>${dCol}</td>
       <td>${Math.round((e.angle*180/Math.PI+90+360)%360)}°</td>
       <td><span class="del" data-id="${e.id}">✕</span></td>`;
     tr.querySelector('td').onclick=()=>{sel=e;draw();renderTable();};
     tr.querySelector('.del').onclick=()=>deleteEl(e);
     tb.appendChild(tr);
   });
-  if(sel&&sel.id!==state.refId){const dm=delayMs(sel);$('#selDelay').textContent=dm.toFixed(2);
-    $('#selSamples').textContent=Math.round(dm/1000*parseFloat($('#sr').value))+' próbek @ '+($('#sr').value/1000)+'kHz';}
-  else{$('#selDelay').textContent='—';$('#selSamples').textContent=sel?'punkt referencyjny':'';}
+  if(sel&&sel.id!==state.refId){const dm=delayMs(sel);
+    if(isSource(sel)){$('#selDelay').textContent='0';$('#selSamples').textContent='źródło — gra razem z REF';}
+    else{$('#selDelay').textContent=dm.toFixed(2);$('#selSamples').textContent=Math.round(dm/1000*parseFloat($('#sr').value))+' próbek @ '+($('#sr').value/1000)+'kHz';}
+    $('#selDist').textContent='odległość od REF: '+distM(sel,ref()).toFixed(2)+' m (w linii prostej)';
+    $('#negNote').style.display=(!isSource(sel)&&dm<0)?'block':'none';}
+  else{$('#selDelay').textContent='—';$('#selSamples').textContent=sel?'punkt referencyjny':'';$('#selDist').textContent='';$('#negNote').style.display='none';}
   $('#cval').textContent=speedOfSound().toFixed(1)+' m/s';
   $('#btnDel').style.display=sel?'inline-flex':'none';
   $('#selEdit').style.display=sel?'block':'none';
@@ -444,7 +492,7 @@ function renderTableRows(){
 }
 function renderTable(){
   renderTableRows();
-  if(sel){$('#selLabel').value=sel.label;$('#selLat').value=sel.lat||0;}
+  if(sel){$('#selLabel').value=sel.label;$('#selLat').value=sel.lat||0;$('#selSrc').checked=isSource(sel);}
 }
 
 // ---- delete ----
@@ -458,6 +506,7 @@ function deleteEl(el){
 $('#btnDel').onclick=()=>deleteEl(sel);
 $('#selLabel').addEventListener('input',()=>{if(sel){sel.label=$('#selLabel').value;draw();renderTableRows();}});
 $('#selLat').addEventListener('input',()=>{if(sel){sel.lat=parseFloat($('#selLat').value)||0;draw();renderTableRows();}});
+$('#selSrc').addEventListener('change',()=>{if(sel){sel.src=$('#selSrc').checked;draw();renderTableRows();}});
 window.addEventListener('keydown',e=>{
   if((e.key==='Delete'||e.key==='Backspace')&&sel&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){
     e.preventDefault();deleteEl(sel);
@@ -483,12 +532,22 @@ $('#fileBg').onchange=async e=>{
       const vp=page.getViewport({scale:2});
       const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
       await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
-      state.bgImg=c;draw();
+      state.bgImg=c;$('#btnBgClear').style.display='inline-flex';draw();
     }catch(err){alert('Nie udało się wczytać PDF (offline brak dostępu do biblioteki PDF). Użyj JPG/PNG albo otwórz aplikację przez internet.');}
   }else{
-    const img=new Image();img.onload=()=>{state.bgImg=img;draw();};img.src=URL.createObjectURL(f);
+    const img=new Image();img.onload=()=>{state.bgImg=img;$('#btnBgClear').style.display='inline-flex';draw();};img.src=URL.createObjectURL(f);
   }
+  e.target.value=''; // pozwala wgrać ten sam plik ponownie
 };
+$('#btnBgClear').onclick=()=>{state.bgImg=null;$('#btnBgClear').style.display='none';draw();};
+$('#btnCal').onclick=()=>{
+  if(calMode){endCal();return;}
+  calMode=true;calPts=[];$('#calPill').style.display='';$('#calMsg').textContent='Kliknij pierwszy punkt';
+  $('#btnCal').classList.add('pri');cv.style.cursor='crosshair';
+  if(window.matchMedia('(max-width:900px)').matches)$('#side').classList.remove('open');
+  draw();
+};
+$('#calCancel').onclick=endCal;
 $('#bgOp').addEventListener('input',()=>{$('#bgOpVal').textContent=$('#bgOp').value+'%';draw();});
 
 // --- motyw jasny / ciemny ---
@@ -526,19 +585,27 @@ $('#fileJson').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new F
     sel=null;draw();renderTable();};r.readAsText(f);};
 
 $('#btnCsv').onclick=()=>{
-  let csv='Element;Typ;Odleglosc_m;Latencja_ms;Delay_ms;Probki;Kat_deg\n';
-  state.els.forEach(e=>{const isRef=e.id===state.refId;const dm=delayMs(e);const dist=isRef?0:(ref()?distM(e,ref()):0);
+  let csv='Element;Typ;Rola;Odleglosc_m;Latencja_ms;Delay_ms;Probki;Kat_deg\n';
+  state.els.forEach(e=>{const isRef=e.id===state.refId;const dm=delayMs(e);
+    const dist=isRef?0:distM(e,ref());
+    const rola=isRef?'REF':(isSource(e)?'zrodlo':'delay');
     const smp=Math.round(dm/1000*parseFloat($('#sr').value));
-    csv+=`${e.label};${TYPES[e.type].nm};${dist.toFixed(2)};${(e.lat||0)};${isRef?0:dm.toFixed(2)};${isRef?0:smp};${Math.round((e.angle*180/Math.PI+90+360)%360)}\n`;});
+    const delayCell=(isRef||isSource(e))?0:dm.toFixed(2);
+    const smpCell=(isRef||isSource(e))?0:smp;
+    csv+=`${e.label};${TYPES[e.type].nm};${rola};${dist.toFixed(2)};${(e.lat||0)};${delayCell};${smpCell};${Math.round((e.angle*180/Math.PI+90+360)%360)}\n`;});
   const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pa-delay-nastawy.csv';a.click();
 };
 
 $('#btnPdf').onclick=exportPdf;
 function exportPdf(){
   const w=window.open('','_blank');const sr=parseFloat($('#sr').value);
-  let rows=state.els.map(e=>{const isRef=e.id===state.refId;const dm=delayMs(e);const dist=isRef?0:(ref()?distM(e,ref()):0);
+  let rows=state.els.map(e=>{const isRef=e.id===state.refId;const dm=delayMs(e);
+    const dist=isRef?0:distM(e,ref());
+    const rola=isRef?'REF (0)':(isSource(e)?'źródło':'delay');
     const smp=Math.round(dm/1000*sr);
-    return `<tr><td>${e.label}</td><td>${TYPES[e.type].nm}</td><td>${dist.toFixed(2)} m</td><td>${e.lat||0} ms</td><td>${isRef?'REF (0)':dm.toFixed(2)+' ms'}</td><td>${isRef?'—':smp}</td><td>${Math.round((e.angle*180/Math.PI+90+360)%360)}°</td></tr>`;}).join('');
+    const delayCell=isRef?'REF (0)':(isSource(e)?'0 (źródło)':dm.toFixed(2)+' ms');
+    const smpCell=(isRef||isSource(e))?'—':smp;
+    return `<tr><td>${e.label}</td><td>${TYPES[e.type].nm}</td><td>${rola}</td><td>${dist.toFixed(2)} m</td><td>${e.lat||0} ms</td><td>${delayCell}</td><td>${smpCell}</td><td>${Math.round((e.angle*180/Math.PI+90+360)%360)}°</td></tr>`;}).join('');
   const img=cv.toDataURL('image/png');
   w.document.write(`<html><head><title>PA Delay — raport</title><style>
     body{font-family:Arial;margin:30px;color:#111}h1{font-size:20px}img{width:100%;border:1px solid #ccc;border-radius:8px;margin:14px 0}
@@ -546,7 +613,8 @@ function exportPdf(){
     th{background:#f2f2f2}.meta{font-size:12px;color:#555;margin-bottom:10px}</style></head><body>
     <h1>PA Delay Designer — raport nastaw</h1>
     <div class="meta">Temp: ${$('#temp').value}°C · prędkość dźwięku: ${speedOfSound().toFixed(1)} m/s · sample rate: ${sr/1000} kHz · offset Haasa: ${$('#haas').value} ms · skala: ${$('#scale').value} m/100px</div>
-    <img src="${img}"><table><tr><th>Element</th><th>Typ</th><th>Odległość od 0</th><th>Latencja</th><th>Delay</th><th>Próbki</th><th>Kąt</th></tr>${rows}</table>
+    <img src="${img}"><table><tr><th>Element</th><th>Typ</th><th>Rola</th><th>Odległość od 0</th><th>Latencja</th><th>Delay</th><th>Próbki</th><th>Kąt</th></tr>${rows}</table>
+    <p style="font-size:11px;color:#555;margin-top:8px">Delay liczony z odległości w linii prostej od REF (Main 1). Elementy oznaczone „źródło" grają razem z REF (delay 0).</p>
     <p style="font-size:11px;color:#888;margin-top:14px">Wygenerowano w PA Delay Designer · ${new Date().toLocaleString('pl-PL')}</p>
     </body></html>`);
   w.document.close();setTimeout(()=>w.print(),400);
