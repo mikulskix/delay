@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PA Delay">
+<meta name="theme-color" content="#0d1014">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<title>PA Delay Designer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#0d1014; --panel:#161b22; --panel2:#1c232c; --line:#2a333f;
+    --txt:#e6edf3; --dim:#8b98a6; --acc:#ff6b1a; --acc2:#19c3ff;
+    --ok:#3fb950; --warn:#f0b429; --grid:#1e262f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{
+    background:var(--bg);color:var(--txt);
+    font-family:'Archivo',sans-serif;
+    display:flex;flex-direction:column;
+  }
+  .mono{font-family:'JetBrains Mono',monospace}
+
+  header{
+    display:flex;align-items:center;gap:14px;padding:10px 16px;
+    background:linear-gradient(180deg,#1a212a,#12171d);
+    border-bottom:1px solid var(--line);flex-shrink:0;z-index:30;
+  }
+  header h1{font-size:15px;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+  header h1 .dot{width:9px;height:9px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc)}
+  header .sub{color:var(--dim);font-size:11px;font-weight:400;letter-spacing:.3px}
+  header .spacer{flex:1}
+  .tbtn{
+    background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    padding:7px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;
+    font-family:'Archivo',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.15s;
+  }
+  .tbtn:hover{border-color:var(--acc);color:#fff}
+  .tbtn.pri{background:var(--acc);border-color:var(--acc);color:#1a0d00}
+  .tbtn.pri:hover{filter:brightness(1.1)}
+  .tbtn.dir{font-size:11px;padding:8px 6px;justify-content:center}
+  .tbtn.dir.on{background:var(--acc2);border-color:var(--acc2);color:#00222e;font-weight:700}
+
+  main{flex:1;display:flex;min-height:0}
+  /* SIDEBAR */
+  .side{
+    width:300px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .grp{border-bottom:1px solid var(--line);padding:14px 16px}
+  .grp h2{font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:var(--dim);margin-bottom:12px;font-weight:800}
+  .field{margin-bottom:11px}
+  .field label{display:block;font-size:11px;color:var(--dim);margin-bottom:4px}
+  .field input,.field select{
+    width:100%;background:var(--bg);border:1px solid var(--line);color:var(--txt);
+    padding:7px 9px;border-radius:6px;font-size:13px;font-family:'JetBrains Mono',monospace;
+  }
+  .field input:focus,.field select:focus{outline:none;border-color:var(--acc2)}
+  .row2{display:flex;gap:8px}.row2>*{flex:1}
+  .calcline{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);padding:3px 0}
+  .calcline b{color:var(--acc2);font-family:'JetBrains Mono',monospace}
+
+  .palette{display:flex;flex-direction:column;gap:7px}
+  .pitem{
+    display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;
+    border:1px dashed var(--line);background:var(--panel2);cursor:grab;transition:.15s;user-select:none;
+  }
+  .pitem:hover{border-color:var(--acc);border-style:solid}
+  .pitem:active{cursor:grabbing}
+  .pitem .sw{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+  .pitem .nm{font-size:12px;font-weight:600}
+  .pitem .ds{font-size:10px;color:var(--dim)}
+  .hint{font-size:10px;color:var(--dim);line-height:1.5;margin-top:8px}
+
+  /* STAGE */
+  .stagewrap{flex:1;position:relative;overflow:hidden;background:
+    radial-gradient(circle at 50% 0%,#11161c,#0b0e12);min-width:0}
+  #stage{position:absolute;inset:0;touch-action:none}
+  .stagebar{
+    position:absolute;top:10px;left:10px;z-index:10;display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  }
+  .pill{
+    background:rgba(22,27,34,.92);border:1px solid var(--line);border-radius:20px;
+    padding:6px 12px;font-size:11px;color:var(--dim);display:flex;align-items:center;gap:7px;backdrop-filter:blur(6px);
+  }
+  .pill b{color:var(--txt);font-family:'JetBrains Mono',monospace}
+  .pill button{background:none;border:none;color:var(--acc2);cursor:pointer;font-size:11px;font-weight:700}
+  .legend{
+    position:absolute;bottom:10px;left:10px;z-index:10;background:rgba(22,27,34,.92);
+    border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:10px;color:var(--dim);
+    backdrop-filter:blur(6px);line-height:1.7;
+  }
+
+  /* INSPECTOR */
+  .insp{
+    width:270px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--line);
+    display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .insp .empty{padding:30px 18px;color:var(--dim);font-size:12px;text-align:center;line-height:1.6}
+  .bigval{padding:16px;border-bottom:1px solid var(--line);text-align:center}
+  .bigval .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim)}
+  .bigval .v{font-size:34px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--acc);line-height:1.1;margin-top:4px}
+  .bigval .u{font-size:14px;color:var(--dim)}
+  .tbl{width:100%;border-collapse:collapse;font-size:11px}
+  .tbl th{text-align:left;color:var(--dim);font-weight:600;padding:6px 16px;font-size:9px;text-transform:uppercase;letter-spacing:.8px;background:var(--panel2)}
+  .tbl td{padding:5px 16px;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace}
+  .tbl tr.sel{background:rgba(255,107,26,.12)}
+  .tbl tr td:first-child{cursor:pointer}
+  .tbl .sw{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:6px}
+  .del{color:#f85149;cursor:pointer;font-weight:700}
+
+  @media(max-width:900px){
+    .side{position:absolute;left:0;top:0;bottom:0;z-index:40;transform:translateX(-100%);transition:.25s}
+    .side.open{transform:none}
+    .insp{position:absolute;right:0;top:0;bottom:0;z-index:40;transform:translateX(100%);transition:.25s}
+    .insp.open{transform:none}
+    .mob{display:inline-flex!important}
+  }
+  .mob{display:none}
+
+  /* --- Tryb pełnoekranowy (dodano do ekranu początkowego) + notch.
+        env() = 0 na komputerze, więc desktop bez zmian. --- */
+  header{
+    padding-top:max(10px, env(safe-area-inset-top));
+    padding-left:max(16px, env(safe-area-inset-left));
+    padding-right:max(16px, env(safe-area-inset-right));
+  }
+  .side{padding-left:env(safe-area-inset-left)}
+  .insp{padding-right:env(safe-area-inset-right)}
+
+  /* --- Tylko urządzenia dotykowe (iPad): większe cele dotyku.
+        Nie dotyczy myszki na komputerze. --- */
+  @media (pointer: coarse){
+    .tbtn{padding:10px 14px;font-size:13px}
+    .field input,.field select{padding:10px 11px;font-size:14px}
+    .pitem{padding:12px 13px}
+    .pitem .nm{font-size:13px}
+    .tbl td{padding:8px 16px}
+    .del{font-size:15px;padding:0 4px}
+    .legend{font-size:11px}
+  }
+
+  /* --- Motyw jasny (jasno-szary). Aktywowany klasą body.light. --- */
+  body.light{
+    --bg:#e9ebef; --panel:#f5f6f8; --panel2:#e4e7ec; --line:#c6ccd5;
+    --txt:#1a1f26; --dim:#5d6773; --grid:#d4d9e1;
+  }
+  body.light header{background:linear-gradient(180deg,#fbfcfd,#eef0f3)}
+  body.light .stagewrap{background:radial-gradient(circle at 50% 0%,#f3f4f6,#e2e5ea)}
+  body.light .pill,body.light .legend{background:rgba(245,246,248,.92)}
+  body.light .tbtn.pri{color:#fff}
+  body.light .bigval .v{color:#d2570f}
+</style>
+</head>
+<body>
+<header>
+  <button class="tbtn mob" id="mLeft">☰</button>
+  <h1><span class="dot"></span>PA DELAY <span class="sub">designer · v1</span></h1>
+  <div class="spacer"></div>
+  <button class="tbtn" id="btnNew">Nowy</button>
+  <button class="tbtn" id="btnSave">Zapis JSON</button>
+  <button class="tbtn" id="btnLoad">Wczytaj</button>
+  <button class="tbtn" id="btnCsv">CSV</button>
+  <button class="tbtn pri" id="btnPdf">Eksport PDF</button>
+  <button class="tbtn" id="btnTheme" title="Przełącz motyw">☀︎</button>
+  <button class="tbtn mob" id="mRight">📋</button>
+  <input type="file" id="fileJson" accept=".json" hidden>
+</header>
+
+<main>
+  <!-- SIDEBAR -->
+  <aside class="side" id="side">
+    <div class="grp">
+      <h2>Warunki akustyczne</h2>
+      <div class="row2">
+        <div class="field"><label>Temperatura °C</label><input id="temp" type="number" value="20" step="0.5"></div>
+        <div class="field"><label>Sample rate</label>
+          <select id="sr"><option>48000</option><option>96000</option><option>44100</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Offset Haasa [ms] (dodaj do każdej linii)</label><input id="haas" type="number" value="0" step="1"></div>
+      <div class="calcline">Prędkość dźwięku <b id="cval">343.4 m/s</b></div>
+    </div>
+
+    <div class="grp">
+      <h2>Skala / kalibracja</h2>
+      <div class="field"><label>Metrów na 100 px</label><input id="scale" type="number" value="5" step="0.5"></div>
+      <div class="hint">Wgraj plan jako tło i ustaw skalę tak, by odległości zgadzały się z rzeczywistością.</div>
+      <button class="tbtn" id="btnBg" style="margin-top:8px;width:100%">Wgraj podkład (JPG / PNG / PDF)</button>
+      <input type="file" id="fileBg" accept="image/*,application/pdf" hidden>
+      <div class="field" style="margin-top:10px;margin-bottom:0">
+        <label>Krycie planu <span id="bgOpVal" class="mono" style="color:var(--acc2)">80%</span></label>
+        <input id="bgOp" type="range" min="10" max="100" value="80" style="width:100%">
+      </div>
+    </div>
+
+    <div class="grp">
+      <h2>Orientacja projektu — front / kierunek grania</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <button class="tbtn dir" data-dir="up">↑ Front u góry</button>
+        <button class="tbtn dir" data-dir="right">→ Front z prawej</button>
+        <button class="tbtn dir" data-dir="left">← Front z lewej</button>
+        <button class="tbtn dir" data-dir="down">↓ Front na dole</button>
+      </div>
+      <div class="hint">Ustawia domyślny kierunek grania nowych głośników i obraca te już dodane. Wybierz stronę, w którą grają głośniki względem sceny.</div>
+    </div>
+
+    <div class="grp">
+      <h2>Dodaj element — przeciągnij na scenę</h2>
+      <div class="palette" id="palette"></div>
+      <div class="hint">Punkt <b>REF (0)</b> to linia odniesienia — od niej liczone są wszystkie opóźnienia. Linie głośnikowe (delay) dostają delay tak, by zgrać się czasowo z REF.</div>
+    </div>
+  </aside>
+
+  <!-- STAGE -->
+  <section class="stagewrap">
+    <canvas id="stage"></canvas>
+    <div class="stagebar">
+      <div class="pill">REF (0): <b id="refName">— brak —</b> <button id="setRefHint">?</button></div>
+      <div class="pill" id="anglePill" style="display:none">Kąt zaznacz.: <b id="angleVal">0°</b></div>
+    </div>
+    <div class="legend">
+      <div><span style="color:var(--acc)">●</span> obrót: uchwyt na obwodzie · klik = zaznacz</div>
+      <div>dwuklik na elemencie → ustaw jako REF (0)</div>
+    </div>
+  </section>
+
+  <!-- INSPECTOR -->
+  <aside class="insp" id="insp">
+    <div class="bigval">
+      <div class="lbl">Delay zaznaczonego elementu</div>
+      <div class="v"><span id="selDelay">—</span><span class="u"> ms</span></div>
+      <div class="lbl mono" id="selSamples" style="margin-top:4px;color:var(--acc2)"></div>
+      <div id="selEdit" style="display:none;margin-top:12px;text-align:left">
+        <div class="field" style="margin-bottom:8px"><label>Nazwa elementu</label><input id="selLabel" type="text"></div>
+        <div class="field" style="margin-bottom:0"><label>Latencja urządzenia/DSP [ms]</label><input id="selLat" type="number" step="0.1" value="0"></div>
+        <div class="hint" id="subNote" style="display:none;color:var(--warn)">⚠ Sub: delay geometryczny to tylko punkt startowy — alignment z topami rób pomiarem (faza/crossover).</div>
+      </div>
+      <button class="tbtn" id="btnDel" style="margin-top:12px;width:100%;display:none;border-color:#f85149;color:#f85149">🗑 Usuń zaznaczony głośnik</button>
+    </div>
+    <table class="tbl" id="tbl">
+      <thead><tr><th>Element</th><th>Dist</th><th>Delay</th><th>Kąt</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="empty" id="tblEmpty">Brak elementów. Przeciągnij głośnik z lewego panelu na scenę.</div>
+  </aside>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const cv=$('#stage'),ctx=cv.getContext('2d');
+
+const TYPES={
+  main:{nm:'Main / PA',ds:'system główny',col:'#ff6b1a'},
+  delay:{nm:'Delay line',ds:'linia opóźniająca',col:'#19c3ff'},
+  sub:{nm:'Subwoofer',ds:'niskie pasmo',col:'#a371f7'},
+  fill:{nm:'Front-fill',ds:'dogłośnienie',col:'#3fb950'},
+};
+
+let state={els:[],refId:null,bg:null,bgImg:null};
+let sel=null, view={zoom:1,ox:0,oy:0};
+// domyślny kierunek grania nowych głośników (kąt w rad; 0 = w prawo)
+const DIR_ANGLE={right:0, down:Math.PI/2, left:Math.PI, up:-Math.PI/2};
+let frontDir='right';
+
+// palette
+const pal=$('#palette');
+Object.entries(TYPES).forEach(([k,t])=>{
+  const d=document.createElement('div');d.className='pitem';d.draggable=true;d.dataset.type=k;
+  d.innerHTML=`<span class="sw" style="background:${t.col}"></span><div><div class="nm">${t.nm}</div><div class="ds">${t.ds}</div></div>`;
+  d.addEventListener('dragstart',e=>e.dataTransfer.setData('type',k));
+  // touch fallback: tap to add at center
+  d.addEventListener('click',()=>addEl(k,cv.width/2/devicePixelRatio,cv.height/2/devicePixelRatio));
+  pal.appendChild(d);
+});
+
+function speedOfSound(){return 331.3+0.606*parseFloat($('#temp').value||20);}
+function metersPerPx(){return parseFloat($('#scale').value||5)/100;}
+
+function resize(){
+  const r=cv.parentElement.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  draw();
+}
+window.addEventListener('resize',resize);
+
+function addEl(type,x,y){
+  const id=Date.now()+Math.random();
+  const label=TYPES[type].nm.split(' ')[0]+' '+(state.els.filter(e=>e.type===type).length+1);
+  const el={id,type,x,y,angle:DIR_ANGLE[frontDir],label,lat:0};
+  state.els.push(el);
+  if(type==='main' && state.refId===null){state.refId=id;}
+  if(state.refId===null) state.refId=id;
+  sel=el;draw();renderTable();
+}
+
+// drag-drop from palette
+cv.addEventListener('dragover',e=>e.preventDefault());
+cv.addEventListener('drop',e=>{
+  e.preventDefault();const t=e.dataTransfer.getData('type');if(!t)return;
+  const r=cv.getBoundingClientRect();
+  addEl(t,(e.clientX-r.left-view.ox)/view.zoom,(e.clientY-r.top-view.oy)/view.zoom);
+});
+
+// distance & delay
+function distM(a,b){const dx=a.x-b.x,dy=a.y-b.y;return Math.hypot(dx,dy)*metersPerPx();}
+function delayMs(el){
+  if(!state.refId)return 0;
+  const ref=state.els.find(e=>e.id===state.refId);if(!ref||el.id===ref.id)return 0;
+  const d=distM(el,ref);
+  const latDiff=(ref.lat||0)-(el.lat||0); // korekta różnicy latencji urządzeń
+  return d/speedOfSound()*1000 + parseFloat($('#haas').value||0) + latDiff;
+}
+
+// ---- interaction ----
+let drag=null;
+function hit(mx,my){
+  for(let i=state.els.length-1;i>=0;i--){
+    const e=state.els[i];const sx=e.x*view.zoom+view.ox,sy=e.y*view.zoom+view.oy;
+    const d=Math.hypot(mx-sx,my-sy);
+    if(Math.abs(d-26)<9) return {el:e,mode:'rot'};
+    if(d<22) return {el:e,mode:'move'};
+  }
+  return null;
+}
+function getXY(e){const r=cv.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};}
+function down(e){
+  const{x,y}=getXY(e);const h=hit(x,y);
+  if(h){sel=h.el;drag={mode:h.mode,el:h.el};draw();renderTable();}
+  else{sel=null;drag={mode:'pan',sx:x-view.ox,sy:y-view.oy};draw();renderTable();}
+}
+function move(e){
+  if(!drag)return;e.preventDefault();const{x,y}=getXY(e);
+  if(drag.mode==='move'){drag.el.x=(x-view.ox)/view.zoom;drag.el.y=(y-view.oy)/view.zoom;}
+  else if(drag.mode==='rot'){const sx=drag.el.x*view.zoom+view.ox,sy=drag.el.y*view.zoom+view.oy;drag.el.angle=Math.atan2(y-sy,x-sx);}
+  else if(drag.mode==='pan'){view.ox=x-drag.sx;view.oy=y-drag.sy;}
+  draw();if(drag.mode!=='pan')renderTable();
+}
+function up(){drag=null;}
+cv.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+// touch: najpierw wykryj podwójny tap (ustaw REF), potem zwykła interakcja
+let lastTap=0,lastTapXY=null;
+cv.addEventListener('touchstart',e=>{
+  const now=Date.now();const{x,y}=getXY(e);
+  if(now-lastTap<300 && lastTapXY && Math.hypot(x-lastTapXY.x,y-lastTapXY.y)<30){
+    e.preventDefault(); // blokuje double-tap zoom tylko na płótnie
+    const h=hit(x,y);if(h){state.refId=h.el.id;sel=h.el;draw();renderTable();}
+    lastTap=0;lastTapXY=null;drag=null;return;
+  }
+  lastTap=now;lastTapXY={x,y};
+  down(e);
+},{passive:false});
+cv.addEventListener('touchmove',move,{passive:false});cv.addEventListener('touchend',up);
+cv.addEventListener('dblclick',e=>{const{x,y}=getXY(e);const h=hit(x,y);if(h){state.refId=h.el.id;draw();renderTable();}});
+cv.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.1:0.9;const{x,y}=getXY(e);
+  view.ox=x-(x-view.ox)*f;view.oy=y-(y-view.oy)*f;view.zoom*=f;draw();},{passive:false});
+
+// ---- draw ----
+function theme(){
+  const l=document.body.classList.contains('light');
+  return l
+    ? {grid:'#d4d9e1',line:'rgba(90,101,115,.55)',labelBg:'rgba(255,255,255,.92)',labelTxt:'#1a1f26',refFill:'#1a1f26'}
+    : {grid:'#1e262f',line:'rgba(139,152,166,.4)',labelBg:'rgba(13,16,20,.9)',labelTxt:'#e6edf3',refFill:'#ffffff'};
+}
+function draw(){
+  const W=cv.clientWidth,H=cv.clientHeight;const TH=theme();
+  ctx.clearRect(0,0,W,H);
+  // bg image (krycie z suwaka)
+  if(state.bgImg){const op=parseInt($('#bgOp').value||80)/100;ctx.globalAlpha=op;ctx.drawImage(state.bgImg,view.ox,view.oy,state.bgImg.width*view.zoom,state.bgImg.height*view.zoom);ctx.globalAlpha=1;}
+  // grid
+  ctx.strokeStyle=TH.grid;ctx.lineWidth=1;const step=100*view.zoom;
+  for(let x=view.ox%step;x<W;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=view.oy%step;y<H;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  const ref=state.els.find(e=>e.id===state.refId);
+  // lines to ref
+  if(ref){state.els.forEach(e=>{if(e.id===ref.id)return;
+    ctx.strokeStyle=TH.line;ctx.lineWidth=2.5;ctx.setLineDash([6,5]);ctx.beginPath();
+    ctx.moveTo(ref.x*view.zoom+view.ox,ref.y*view.zoom+view.oy);ctx.lineTo(e.x*view.zoom+view.ox,e.y*view.zoom+view.oy);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=1;
+  });}
+  // elements
+  state.els.forEach(e=>drawEl(e,e.id===state.refId,e===sel));
+  $('#refName').textContent=ref?ref.label:'— brak —';
+  if(sel){$('#anglePill').style.display='';$('#angleVal').textContent=Math.round((sel.angle*180/Math.PI+90+360)%360)+'°';}
+  else $('#anglePill').style.display='none';
+}
+function drawEl(e,isRef,isSel){
+  const x=e.x*view.zoom+view.ox,y=e.y*view.zoom+view.oy;const c=TYPES[e.type].col;
+  // coverage cone
+  ctx.save();ctx.translate(x,y);ctx.rotate(e.angle);
+  const grad=ctx.createRadialGradient(0,0,0,0,0,120);grad.addColorStop(0,c+'55');grad.addColorStop(1,c+'00');
+  ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,120,-0.6,0.6);ctx.closePath();ctx.fill();
+  ctx.restore();
+  // rotation handle ring
+  if(isSel){ctx.strokeStyle=c;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(x,y,26,0,7);ctx.stroke();ctx.setLineDash([]);
+    const hx=x+Math.cos(e.angle)*26,hy=y+Math.sin(e.angle)*26;ctx.fillStyle=c;ctx.beginPath();ctx.arc(hx,hy,5,0,7);ctx.fill();}
+  // body
+  const TH=theme();
+  ctx.fillStyle=isRef?TH.refFill:c;ctx.strokeStyle=c;ctx.lineWidth=isRef?3:2;
+  ctx.beginPath();ctx.arc(x,y,14,0,7);ctx.fill();if(isRef)ctx.stroke();
+  ctx.fillStyle=isRef?c:TH.labelTxt;ctx.font='700 11px JetBrains Mono';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(isRef?'0':'',x,y);
+  // label box
+  const dm=delayMs(e),dist=isRef?0:(ref()?distM(e,ref()):0);
+  const txt=isRef?e.label+' · REF':`${e.label}  ${dist.toFixed(1)}m  ${dm.toFixed(1)}ms`;
+  ctx.font='600 11px Archivo';const w=ctx.measureText(txt).width+14;
+  ctx.fillStyle=TH.labelBg;ctx.strokeStyle=isSel?c:TH.grid;
+  roundRect(x+18,y-10,w,20,5);ctx.fill();ctx.stroke();
+  ctx.fillStyle=TH.labelTxt;ctx.textAlign='left';ctx.fillText(txt,x+25,y);
+}
+function ref(){return state.els.find(e=>e.id===state.refId);}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+// ---- table & inspector ----
+function renderTableRows(){
+  const tb=$('#tbl tbody');tb.innerHTML='';
+  $('#tblEmpty').style.display=state.els.length?'none':'block';
+  $('#tbl').style.display=state.els.length?'table':'none';
+  state.els.forEach(e=>{
+    const isRef=e.id===state.refId;const dm=delayMs(e);const dist=isRef?0:(ref()?distM(e,ref()):0);
+    const tr=document.createElement('tr');if(e===sel)tr.className='sel';
+    tr.innerHTML=`<td><span class="sw" style="background:${TYPES[e.type].col}"></span>${e.label}${isRef?' (0)':''}</td>
+      <td>${dist.toFixed(1)}m</td><td>${isRef?'REF':dm.toFixed(1)+'ms'}</td>
+      <td>${Math.round((e.angle*180/Math.PI+90+360)%360)}°</td>
+      <td><span class="del" data-id="${e.id}">✕</span></td>`;
+    tr.querySelector('td').onclick=()=>{sel=e;draw();renderTable();};
+    tr.querySelector('.del').onclick=()=>deleteEl(e);
+    tb.appendChild(tr);
+  });
+  if(sel&&sel.id!==state.refId){const dm=delayMs(sel);$('#selDelay').textContent=dm.toFixed(2);
+    $('#selSamples').textContent=Math.round(dm/1000*parseFloat($('#sr').value))+' próbek @ '+($('#sr').value/1000)+'kHz';}
+  else{$('#selDelay').textContent='—';$('#selSamples').textContent=sel?'punkt referencyjny':'';}
+  $('#cval').textContent=speedOfSound().toFixed(1)+' m/s';
+  $('#btnDel').style.display=sel?'inline-flex':'none';
+  $('#selEdit').style.display=sel?'block':'none';
+  $('#subNote').style.display=(sel&&sel.type==='sub')?'block':'none';
+}
+function renderTable(){
+  renderTableRows();
+  if(sel){$('#selLabel').value=sel.label;$('#selLat').value=sel.lat||0;}
+}
+
+// ---- delete ----
+function deleteEl(el){
+  if(!el)return;
+  state.els=state.els.filter(x=>x.id!==el.id);
+  if(state.refId===el.id) state.refId=state.els[0]?.id||null;
+  if(sel===el) sel=null;
+  draw();renderTable();
+}
+$('#btnDel').onclick=()=>deleteEl(sel);
+$('#selLabel').addEventListener('input',()=>{if(sel){sel.label=$('#selLabel').value;draw();renderTableRows();}});
+$('#selLat').addEventListener('input',()=>{if(sel){sel.lat=parseFloat($('#selLat').value)||0;draw();renderTableRows();}});
+window.addEventListener('keydown',e=>{
+  if((e.key==='Delete'||e.key==='Backspace')&&sel&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){
+    e.preventDefault();deleteEl(sel);
+  }
+});
+
+// ---- controls ----
+['temp','sr','haas','scale'].forEach(id=>$('#'+id).addEventListener('input',()=>{draw();renderTable();}));
+$('#btnNew').onclick=()=>{if(confirm('Nowy projekt? Niezapisane zmiany przepadną.')){state={els:[],refId:null,bg:null,bgImg:null};sel=null;view={zoom:1,ox:0,oy:0};draw();renderTable();}};
+$('#btnBg').onclick=()=>$('#fileBg').click();
+$('#fileBg').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  if(f.type==='application/pdf'){
+    try{
+      if(!window.pdfjsLib){
+        await new Promise((res,rej)=>{const s=document.createElement('script');
+          s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+        pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+      const buf=await f.arrayBuffer();
+      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+      const page=await pdf.getPage(1);
+      const vp=page.getViewport({scale:2});
+      const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+      await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+      state.bgImg=c;draw();
+    }catch(err){alert('Nie udało się wczytać PDF (offline brak dostępu do biblioteki PDF). Użyj JPG/PNG albo otwórz aplikację przez internet.');}
+  }else{
+    const img=new Image();img.onload=()=>{state.bgImg=img;draw();};img.src=URL.createObjectURL(f);
+  }
+};
+$('#bgOp').addEventListener('input',()=>{$('#bgOpVal').textContent=$('#bgOp').value+'%';draw();});
+
+// --- motyw jasny / ciemny ---
+$('#btnTheme').onclick=()=>{
+  document.body.classList.toggle('light');
+  $('#btnTheme').textContent=document.body.classList.contains('light')?'☾':'☀︎';
+  draw();
+};
+
+// --- orientacja projektu: domyślny kierunek + obrót istniejących ---
+function setFront(dir){
+  const old=DIR_ANGLE[frontDir], neu=DIR_ANGLE[dir];
+  let d=neu-old; // delta obrotu
+  // obróć już dodane głośniki o tę samą deltę
+  state.els.forEach(e=>{e.angle+=d;});
+  frontDir=dir;
+  document.querySelectorAll('.tbtn.dir').forEach(b=>b.classList.toggle('on',b.dataset.dir===dir));
+  draw();renderTable();
+}
+document.querySelectorAll('.tbtn.dir').forEach(b=>b.onclick=()=>setFront(b.dataset.dir));
+
+$('#btnSave').onclick=()=>{
+  const data={...state,settings:{temp:$('#temp').value,sr:$('#sr').value,haas:$('#haas').value,scale:$('#scale').value,frontDir,bgOp:$('#bgOp').value,light:document.body.classList.contains('light')}};
+  delete data.bgImg;
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pa-delay-projekt.json';a.click();
+};
+$('#btnLoad').onclick=()=>$('#fileJson').click();
+$('#fileJson').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{const d=JSON.parse(r.result);state.els=d.els||[];state.refId=d.refId;
+    if(d.settings){$('#temp').value=d.settings.temp;$('#sr').value=d.settings.sr;$('#haas').value=d.settings.haas;$('#scale').value=d.settings.scale;
+      if(d.settings.frontDir){frontDir=d.settings.frontDir;document.querySelectorAll('.tbtn.dir').forEach(b=>b.classList.toggle('on',b.dataset.dir===frontDir));}
+      if(d.settings.bgOp){$('#bgOp').value=d.settings.bgOp;$('#bgOpVal').textContent=d.settings.bgOp+'%';}
+      if(d.settings.light){document.body.classList.add('light');$('#btnTheme').textContent='☾';}else{document.body.classList.remove('light');$('#btnTheme').textContent='☀︎';}}
+    sel=null;draw();renderTable();};r.readAsText(f);};
+
+$('#btnCsv').onclick=()=>{
+  let csv='Element;Typ;Odleglosc_m;Latencja_ms;Delay_ms;Probki;Kat_deg\n';
+  state.els.forEach(e=>{const isRef=e.id===state.refId;const dm=delayMs(e);const dist=isRef?0:(ref()?distM(e,ref()):0);
+    const smp=Math.round(dm/1000*parseFloat($('#sr').value));
+    csv+=`${e.label};${TYPES[e.type].nm};${dist.toFixed(2)};${(e.lat||0)};${isRef?0:dm.toFixed(2)};${isRef?0:smp};${Math.round((e.angle*180/Math.PI+90+360)%360)}\n`;});
+  const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pa-delay-nastawy.csv';a.click();
+};
+
+$('#btnPdf').onclick=exportPdf;
+function exportPdf(){
+  const w=window.open('','_blank');const sr=parseFloat($('#sr').value);
+  let rows=state.els.map(e=>{const isRef=e.id===state.refId;const dm=delayMs(e);const dist=isRef?0:(ref()?distM(e,ref()):0);
+    const smp=Math.round(dm/1000*sr);
+    return `<tr><td>${e.label}</td><td>${TYPES[e.type].nm}</td><td>${dist.toFixed(2)} m</td><td>${e.lat||0} ms</td><td>${isRef?'REF (0)':dm.toFixed(2)+' ms'}</td><td>${isRef?'—':smp}</td><td>${Math.round((e.angle*180/Math.PI+90+360)%360)}°</td></tr>`;}).join('');
+  const img=cv.toDataURL('image/png');
+  w.document.write(`<html><head><title>PA Delay — raport</title><style>
+    body{font-family:Arial;margin:30px;color:#111}h1{font-size:20px}img{width:100%;border:1px solid #ccc;border-radius:8px;margin:14px 0}
+    table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #ccc;padding:7px 9px;text-align:left}
+    th{background:#f2f2f2}.meta{font-size:12px;color:#555;margin-bottom:10px}</style></head><body>
+    <h1>PA Delay Designer — raport nastaw</h1>
+    <div class="meta">Temp: ${$('#temp').value}°C · prędkość dźwięku: ${speedOfSound().toFixed(1)} m/s · sample rate: ${sr/1000} kHz · offset Haasa: ${$('#haas').value} ms · skala: ${$('#scale').value} m/100px</div>
+    <img src="${img}"><table><tr><th>Element</th><th>Typ</th><th>Odległość od 0</th><th>Latencja</th><th>Delay</th><th>Próbki</th><th>Kąt</th></tr>${rows}</table>
+    <p style="font-size:11px;color:#888;margin-top:14px">Wygenerowano w PA Delay Designer · ${new Date().toLocaleString('pl-PL')}</p>
+    </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+}
+
+// mobile panels
+$('#mLeft').onclick=()=>$('#side').classList.toggle('open');
+$('#mRight').onclick=()=>$('#insp').classList.toggle('open');
+$('#setRefHint').onclick=()=>alert('Dwuklik (lub dwa tapnięcia) na elemencie ustawia go jako punkt REF (0) — odniesienie dla wszystkich opóźnień.');
+
+// Blokada przypadkowego zoomu strony na iPadzie (Safari bywa ignoruje user-scalable=no).
+// Dotyczy tylko gestów dotykowych — myszka/desktop działają bez zmian.
+document.addEventListener('gesturestart',e=>e.preventDefault());
+document.addEventListener('gesturechange',e=>e.preventDefault());
+
+document.querySelectorAll('.tbtn.dir').forEach(b=>b.classList.toggle('on',b.dataset.dir===frontDir));
+resize();renderTable();
+</script>
+</body>
+</html>
