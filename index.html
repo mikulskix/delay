@@ -1,4 +1,4 @@
-<!-- wersja: 2026-06-08 18:45 — przycisk "Wczytaj" pyta teraz o potwierdzenie (jak "Nowy"), jeśli w projekcie są już jakieś elementy — chroni przed przypadkową utratą niezapisanej pracy przy wczytywaniu pliku -->
+<!-- wersja: 2026-06-08 18:58 — przycisk "Wyśrodkuj" uwzględnia teraz wgrany podkład: jeśli jest tło, dopasowuje widok do całego planu (a nie tylko do głośników); jeśli tła nie ma, centruje wyłącznie do dodanych elementów, jak dotychczas -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -158,7 +158,7 @@
 <body>
 <header>
   <button class="tbtn" id="mLeft" title="Pokaż/ukryj panel boczny (lewy)">☰</button>
-  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v11</span></h1>
+  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v12</span></h1>
   <div class="spacer"></div>
   <button class="tbtn" id="btnFit" title="Dopasuj widok tak, by wszystkie elementy zmieściły się wycentrowane na scenie">⤢ Wyśrodkuj</button>
   <button class="tbtn" id="btnNew">Nowy</button>
@@ -613,10 +613,18 @@ document.querySelectorAll('.tbtn.dir').forEach(b=>b.onclick=()=>setFront(b.datas
 
 // --- Wyśrodkuj: dopasuj zoom/przesunięcie tak, by wszystkie elementy zmieściły się wycentrowane na scenie ---
 function fitToScreen(){
-  if(!state.els.length){alert('Brak elementów do wyśrodkowania — dodaj najpierw głośniki na scenę.');return;}
-  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
-  state.els.forEach(e=>{minX=Math.min(minX,e.x);minY=Math.min(minY,e.y);maxX=Math.max(maxX,e.x);maxY=Math.max(maxY,e.y);});
-  const W=cv.clientWidth,H=cv.clientHeight,pad=90; // margines wokół skrajnych elementów [px ekranu]
+  let minX,minY,maxX,maxY;
+  if(state.bgImg){
+    // jest podkład — centrujemy/dopasowujemy do całego planu (współrzędne świata 0..width/height)
+    minX=0;minY=0;maxX=state.bgImg.width;maxY=state.bgImg.height;
+  }else if(state.els.length){
+    // brak podkładu — centrujemy do samych dodanych elementów
+    minX=Infinity;minY=Infinity;maxX=-Infinity;maxY=-Infinity;
+    state.els.forEach(e=>{minX=Math.min(minX,e.x);minY=Math.min(minY,e.y);maxX=Math.max(maxX,e.x);maxY=Math.max(maxY,e.y);});
+  }else{
+    alert('Brak elementów ani podkładu do wyśrodkowania — dodaj głośniki lub wgraj plan.');return;
+  }
+  const W=cv.clientWidth,H=cv.clientHeight,pad=90; // margines wokół skrajnych elementów / planu [px ekranu]
   const bw=Math.max(maxX-minX,1),bh=Math.max(maxY-minY,1);
   let zoom=Math.min((W-2*pad)/bw,(H-2*pad)/bh);
   zoom=Math.max(0.05,Math.min(zoom,4)); // rozsądne granice powiększenia
