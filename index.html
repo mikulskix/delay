@@ -1,4 +1,4 @@
-<!-- wersja: 2026-06-08 17:17 — w panelu inspektora dodano pola "Kąt grania [°]" i "Szerokość pokrycia [°]" (wpisywanie z klawiatury zamiast tylko obrotu uchwytem); cień/stożek pokrycia jest teraz dłuższy, wyraźniejszy i ma kształt zależny od ustawionej szerokości. Stare projekty bez "spread" wczytują się z domyślną wartością 70°. -->
+<!-- wersja: 2026-06-08 18:16 — nazwa pliku generowanego przez "Zapis JSON" zawiera teraz datę i godzinę zapisu, np. pa-delay-projekt_2026-06-08_18-16.json -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -617,11 +617,16 @@ function bgToDataURL(){
   c.getContext('2d').drawImage(state.bgImg,0,0);
   return c.toDataURL('image/png');
 }
+// znacznik czasu do nazw plików, np. 2026-06-08_17-25
+function fileStamp(){
+  const d=new Date(),p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
+}
 $('#btnSave').onclick=()=>{
   const data={...state,settings:{temp:$('#temp').value,sr:$('#sr').value,haas:$('#haas').value,scale:$('#scale').value,frontDir,bgOp:$('#bgOp').value,light:document.body.classList.contains('light')},bgDataUrl:bgToDataURL()};
   delete data.bgImg;
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pa-delay-projekt.json';a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pa-delay-projekt_${fileStamp()}.json`;a.click();
 };
 $('#btnLoad').onclick=()=>$('#fileJson').click();
 $('#fileJson').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
