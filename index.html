@@ -1,4 +1,4 @@
-<!-- wersja: 2026-06-08 18:27 — dodano przycisk "⤢ Wyśrodkuj" w nagłówku: ustawia zoom i przesunięcie sceny tak, by wszystkie dodane elementy zmieściły się wycentrowane w oknie głównym -->
+<!-- wersja: 2026-06-08 18:45 — przycisk "Wczytaj" pyta teraz o potwierdzenie (jak "Nowy"), jeśli w projekcie są już jakieś elementy — chroni przed przypadkową utratą niezapisanej pracy przy wczytywaniu pliku -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -158,7 +158,7 @@
 <body>
 <header>
   <button class="tbtn" id="mLeft" title="Pokaż/ukryj panel boczny (lewy)">☰</button>
-  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v10</span></h1>
+  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v11</span></h1>
   <div class="spacer"></div>
   <button class="tbtn" id="btnFit" title="Dopasuj widok tak, by wszystkie elementy zmieściły się wycentrowane na scenie">⤢ Wyśrodkuj</button>
   <button class="tbtn" id="btnNew">Nowy</button>
@@ -644,7 +644,10 @@ $('#btnSave').onclick=()=>{
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pa-delay-projekt_${fileStamp()}.json`;a.click();
 };
-$('#btnLoad').onclick=()=>$('#fileJson').click();
+$('#btnLoad').onclick=()=>{
+  if(state.els.length && !confirm('Wczytać projekt z pliku? Niezapisane zmiany w bieżącym projekcie przepadną.'))return;
+  $('#fileJson').click();
+};
 $('#fileJson').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{const d=JSON.parse(r.result);state.els=d.els||[];state.refId=d.refId;
     state.bgImg=null;$('#btnBgClear').style.display='none';
