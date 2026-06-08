@@ -1,4 +1,4 @@
-<!-- wersja: 2026-06-08 18:16 — nazwa pliku generowanego przez "Zapis JSON" zawiera teraz datę i godzinę zapisu, np. pa-delay-projekt_2026-06-08_18-16.json -->
+<!-- wersja: 2026-06-08 18:27 — dodano przycisk "⤢ Wyśrodkuj" w nagłówku: ustawia zoom i przesunięcie sceny tak, by wszystkie dodane elementy zmieściły się wycentrowane w oknie głównym -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -158,8 +158,9 @@
 <body>
 <header>
   <button class="tbtn" id="mLeft" title="Pokaż/ukryj panel boczny (lewy)">☰</button>
-  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v8</span></h1>
+  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v10</span></h1>
   <div class="spacer"></div>
+  <button class="tbtn" id="btnFit" title="Dopasuj widok tak, by wszystkie elementy zmieściły się wycentrowane na scenie">⤢ Wyśrodkuj</button>
   <button class="tbtn" id="btnNew">Nowy</button>
   <button class="tbtn" id="btnSave">Zapis JSON</button>
   <button class="tbtn" id="btnLoad">Wczytaj</button>
@@ -609,6 +610,21 @@ function setFront(dir){
   draw();renderTable();
 }
 document.querySelectorAll('.tbtn.dir').forEach(b=>b.onclick=()=>setFront(b.dataset.dir));
+
+// --- Wyśrodkuj: dopasuj zoom/przesunięcie tak, by wszystkie elementy zmieściły się wycentrowane na scenie ---
+function fitToScreen(){
+  if(!state.els.length){alert('Brak elementów do wyśrodkowania — dodaj najpierw głośniki na scenę.');return;}
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  state.els.forEach(e=>{minX=Math.min(minX,e.x);minY=Math.min(minY,e.y);maxX=Math.max(maxX,e.x);maxY=Math.max(maxY,e.y);});
+  const W=cv.clientWidth,H=cv.clientHeight,pad=90; // margines wokół skrajnych elementów [px ekranu]
+  const bw=Math.max(maxX-minX,1),bh=Math.max(maxY-minY,1);
+  let zoom=Math.min((W-2*pad)/bw,(H-2*pad)/bh);
+  zoom=Math.max(0.05,Math.min(zoom,4)); // rozsądne granice powiększenia
+  const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
+  view.zoom=zoom;view.ox=W/2-cx*zoom;view.oy=H/2-cy*zoom;
+  draw();
+}
+$('#btnFit').onclick=fitToScreen;
 
 // koduje wgrany podkład (Image lub canvas z PDF) do data URL, by zapisać go w pliku JSON
 function bgToDataURL(){
