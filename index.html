@@ -1,4 +1,4 @@
-<!-- wersja: 2026-06-08 19:50 — naprawiono "cień" (stożek pokrycia) głośnika: wcześniej miał stałą długość w pikselach i nie skalował się z zoomem. Teraz reprezentuje realny "zasięg pokrycia" w metrach (nowe pole "Zasięg pokrycia [m]" w inspektorze, edytowalne dla każdego elementu, z domyślnymi wartościami wg typu: Main 35m, Delay 30m, Sub 20m, Front-fill 12m) i przelicza się na piksele wg skali planu oraz aktualnego przybliżenia — dzięki temu cień poprawnie rośnie/maleje przy zoomowaniu, tak jak reszta sceny. -->
+<!-- wersja: 2026-06-08 19:58 — dodano AUTOZAPIS pracy do localStorage przeglądarki: stan projektu (głośniki, REF, podkład, ustawienia) zapisuje się automatycznie podczas pracy (po dodaniu/usunięciu/przesunięciu elementu, edycji pól, zmianach ustawień — z debouncingiem; plus okresowo co 5s i przy zamykaniu karty). Po odświeżeniu/ponownym otwarciu strony aplikacja pyta, czy przywrócić niedokończoną pracę z poprzedniej sesji. Autozapis czyści się po wczytaniu pliku JSON lub kliknięciu "Nowy". Działa lokalnie w przeglądarce (nie wysyła nic na serwer); w trybie prywatnym Safari może nie działać — wtedy po prostu zapis jest pomijany bez błędu. -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -158,7 +158,7 @@
 <body>
 <header>
   <button class="tbtn" id="mLeft" title="Pokaż/ukryj panel boczny (lewy)">☰</button>
-  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v13</span></h1>
+  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v14</span></h1>
   <div class="spacer"></div>
   <button class="tbtn" id="btnFit" title="Dopasuj widok tak, by wszystkie elementy zmieściły się wycentrowane na scenie">⤢ Wyśrodkuj</button>
   <button class="tbtn" id="btnNew">Nowy</button>
@@ -276,7 +276,7 @@ const TYPES={
   fill:{nm:'Front-fill',ds:'dogłośnienie',col:'#3fb950',throwM:12},
 };
 
-let state={els:[],refId:null,bg:null,bgImg:null};
+let state={els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
 let sel=null, view={zoom:1,ox:0,oy:0};
 // domyślny kierunek grania nowych głośników (kąt w rad; 0 = w prawo)
 const DIR_ANGLE={right:0, down:Math.PI/2, left:Math.PI, up:-Math.PI/2};
@@ -314,7 +314,7 @@ function addEl(type,x,y){
   state.els.push(el);
   if(type==='main' && state.refId===null){state.refId=id;}
   if(state.refId===null) state.refId=id;
-  sel=el;draw();renderTable();
+  sel=el;draw();renderTable();scheduleAutosave();
 }
 
 // drag-drop from palette
@@ -380,7 +380,7 @@ function move(e){
   else if(drag.mode==='pan'){view.ox=x-drag.sx;view.oy=y-drag.sy;}
   draw();if(drag.mode!=='pan')renderTable();
 }
-function up(){drag=null;}
+function up(){if(drag&&drag.mode!=='pan')scheduleAutosave();drag=null;}
 cv.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
 // touch: najpierw wykryj podwójny tap (ustaw REF), potem zwykła interakcja
 let lastTap=0,lastTapXY=null;
@@ -541,7 +541,7 @@ function deleteEl(el){
   state.els=state.els.filter(x=>x.id!==el.id);
   if(state.refId===el.id) state.refId=state.els[0]?.id||null;
   if(sel===el) sel=null;
-  draw();renderTable();
+  draw();renderTable();scheduleAutosave();
 }
 $('#btnDel').onclick=()=>deleteEl(sel);
 $('#selLabel').addEventListener('input',()=>{if(sel){sel.label=$('#selLabel').value;draw();renderTableRows();}});
@@ -568,7 +568,7 @@ window.addEventListener('keydown',e=>{
 
 // ---- controls ----
 ['temp','sr','haas','scale'].forEach(id=>$('#'+id).addEventListener('input',()=>{draw();renderTable();}));
-$('#btnNew').onclick=()=>{if(confirm('Nowy projekt? Niezapisane zmiany przepadną.')){state={els:[],refId:null,bg:null,bgImg:null};sel=null;view={zoom:1,ox:0,oy:0};draw();renderTable();}};
+$('#btnNew').onclick=()=>{if(confirm('Nowy projekt? Niezapisane zmiany przepadną.')){state={els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};sel=null;view={zoom:1,ox:0,oy:0};draw();renderTable();clearAutosave();}};
 $('#btnBg').onclick=()=>$('#fileBg').click();
 $('#fileBg').onchange=async e=>{
   const f=e.target.files[0];if(!f)return;
@@ -585,14 +585,14 @@ $('#fileBg').onchange=async e=>{
       const vp=page.getViewport({scale:2});
       const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
       await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
-      state.bgImg=c;$('#btnBgClear').style.display='inline-flex';draw();
+      state.bgImg=c;state.bgDataUrl=c.toDataURL('image/png');$('#btnBgClear').style.display='inline-flex';draw();scheduleAutosave();
     }catch(err){alert('Nie udało się wczytać PDF (offline brak dostępu do biblioteki PDF). Użyj JPG/PNG albo otwórz aplikację przez internet.');}
   }else{
-    const img=new Image();img.onload=()=>{state.bgImg=img;$('#btnBgClear').style.display='inline-flex';draw();};img.src=URL.createObjectURL(f);
+    const img=new Image();img.onload=()=>{state.bgImg=img;state.bgDataUrl=bgToDataURL();$('#btnBgClear').style.display='inline-flex';draw();scheduleAutosave();};img.src=URL.createObjectURL(f);
   }
   e.target.value=''; // pozwala wgrać ten sam plik ponownie
 };
-$('#btnBgClear').onclick=()=>{state.bgImg=null;$('#btnBgClear').style.display='none';draw();};
+$('#btnBgClear').onclick=()=>{state.bgImg=null;state.bgDataUrl=null;$('#btnBgClear').style.display='none';draw();scheduleAutosave();};
 $('#btnCal').onclick=()=>{
   if(calMode){endCal();return;}
   calMode=true;calPts=[];$('#calPill').style.display='';$('#calMsg').textContent='Kliknij pierwszy punkt';
@@ -657,9 +657,25 @@ function fileStamp(){
   const d=new Date(),p=n=>String(n).padStart(2,'0');
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
 }
-$('#btnSave').onclick=()=>{
-  const data={...state,settings:{temp:$('#temp').value,sr:$('#sr').value,haas:$('#haas').value,scale:$('#scale').value,frontDir,bgOp:$('#bgOp').value,light:document.body.classList.contains('light')},bgDataUrl:bgToDataURL()};
+// buduje serializowalny obiekt projektu (do pliku JSON, do localStorage-autozapisu — to samo źródło prawdy)
+function buildProjectData(){
+  const data={...state,settings:{temp:$('#temp').value,sr:$('#sr').value,haas:$('#haas').value,scale:$('#scale').value,frontDir,bgOp:$('#bgOp').value,light:document.body.classList.contains('light')},bgDataUrl:state.bgDataUrl||null};
   delete data.bgImg;
+  return data;
+}
+// stosuje wczytany obiekt projektu (z pliku JSON lub z autozapisu) do bieżącego stanu aplikacji
+function applyProjectData(d){
+  state.els=d.els||[];state.refId=d.refId;
+  state.bgImg=null;state.bgDataUrl=d.bgDataUrl||null;$('#btnBgClear').style.display='none';
+  if(d.bgDataUrl){const img=new Image();img.onload=()=>{state.bgImg=img;$('#btnBgClear').style.display='inline-flex';draw();};img.src=d.bgDataUrl;}
+  if(d.settings){$('#temp').value=d.settings.temp;$('#sr').value=d.settings.sr;$('#haas').value=d.settings.haas;$('#scale').value=d.settings.scale;
+    if(d.settings.frontDir){frontDir=d.settings.frontDir;document.querySelectorAll('.tbtn.dir').forEach(b=>b.classList.toggle('on',b.dataset.dir===frontDir));}
+    if(d.settings.bgOp){$('#bgOp').value=d.settings.bgOp;$('#bgOpVal').textContent=d.settings.bgOp+'%';}
+    if(d.settings.light){document.body.classList.add('light');$('#btnTheme').textContent='☾';}else{document.body.classList.remove('light');$('#btnTheme').textContent='☀︎';}}
+  sel=null;draw();renderTable();
+}
+$('#btnSave').onclick=()=>{
+  const data=buildProjectData();
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pa-delay-projekt_${fileStamp()}.json`;a.click();
 };
@@ -668,14 +684,7 @@ $('#btnLoad').onclick=()=>{
   $('#fileJson').click();
 };
 $('#fileJson').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{const d=JSON.parse(r.result);state.els=d.els||[];state.refId=d.refId;
-    state.bgImg=null;$('#btnBgClear').style.display='none';
-    if(d.bgDataUrl){const img=new Image();img.onload=()=>{state.bgImg=img;$('#btnBgClear').style.display='inline-flex';draw();};img.src=d.bgDataUrl;}
-    if(d.settings){$('#temp').value=d.settings.temp;$('#sr').value=d.settings.sr;$('#haas').value=d.settings.haas;$('#scale').value=d.settings.scale;
-      if(d.settings.frontDir){frontDir=d.settings.frontDir;document.querySelectorAll('.tbtn.dir').forEach(b=>b.classList.toggle('on',b.dataset.dir===frontDir));}
-      if(d.settings.bgOp){$('#bgOp').value=d.settings.bgOp;$('#bgOpVal').textContent=d.settings.bgOp+'%';}
-      if(d.settings.light){document.body.classList.add('light');$('#btnTheme').textContent='☾';}else{document.body.classList.remove('light');$('#btnTheme').textContent='☀︎';}}
-    sel=null;draw();renderTable();};r.readAsText(f);};
+  r.onload=()=>{const d=JSON.parse(r.result);applyProjectData(d);clearAutosave();};r.readAsText(f);};
 
 $('#btnCsv').onclick=()=>{
   let csv='Element;Typ;Rola;Odleglosc_m;Latencja_ms;Delay_ms;Probki;Kat_deg\n';
@@ -729,6 +738,39 @@ document.addEventListener('gesturestart',e=>e.preventDefault());
 document.addEventListener('gesturechange',e=>e.preventDefault());
 
 document.querySelectorAll('.tbtn.dir').forEach(b=>b.classList.toggle('on',b.dataset.dir===frontDir));
+
+// ====== AUTOZAPIS (localStorage) — chroni przed utratą pracy przy odświeżeniu/zamknięciu karty ======
+const AUTOSAVE_KEY='paDelayAutosave_v1';
+let autosaveTimer=null;
+function autosave(){
+  try{
+    if(!state.els.length && !state.bgImg){localStorage.removeItem(AUTOSAVE_KEY);return;}
+    localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(buildProjectData()));
+  }catch(err){/* np. tryb prywatny w Safari / brak miejsca — autozapis po prostu nie zadziała */}
+}
+function scheduleAutosave(){clearTimeout(autosaveTimer);autosaveTimer=setTimeout(autosave,800);}
+function clearAutosave(){try{localStorage.removeItem(AUTOSAVE_KEY);}catch(err){}}
+setInterval(autosave,5000); // dodatkowy okresowy zapis "na wszelki wypadek" (np. zmiany pól tekstowych)
+window.addEventListener('beforeunload',autosave);
+['temp','sr','haas','scale','bgOp'].forEach(id=>$('#'+id).addEventListener('input',scheduleAutosave));
+['selLabel','selLat','selSrc','selAngle','selSpread','selThrow'].forEach(id=>$('#'+id).addEventListener('input',scheduleAutosave));
+$('#btnTheme').addEventListener('click',scheduleAutosave);
+
+// przy starcie: jeśli jest zapisana niedokończona praca z poprzedniej sesji — zapytaj o przywrócenie
+(function tryRestoreAutosave(){
+  let raw;
+  try{raw=localStorage.getItem(AUTOSAVE_KEY);}catch(err){return;}
+  if(!raw)return;
+  let d;
+  try{d=JSON.parse(raw);}catch(err){return;}
+  if(!d||!((d.els&&d.els.length)||d.bgDataUrl))return;
+  if(confirm('Wykryto niezapisaną pracę z poprzedniej sesji (np. po odświeżeniu strony). Przywrócić ją?')){
+    applyProjectData(d);
+  }else{
+    clearAutosave();
+  }
+})();
+
 resize();renderTable();
 </script>
 </body>
