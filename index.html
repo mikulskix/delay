@@ -161,7 +161,7 @@
 <body>
 <header>
   <button class="tbtn mob" id="mLeft">☰</button>
-  <h1><span class="dot"></span>PA DELAY <span class="sub">Delay · v7</span></h1>
+  <h1><span class="dot"></span>PA DELAY <span class="sub">designer · v1</span></h1>
   <div class="spacer"></div>
   <button class="tbtn" id="btnNew">Nowy</button>
   <button class="tbtn" id="btnSave">Zapis JSON</button>
@@ -191,7 +191,7 @@
     <div class="grp">
       <h2>Skala / kalibracja</h2>
       <div class="field"><label>Metrów na 100 px</label><input id="scale" type="number" value="5" step="0.5"></div>
-      <button class="tbtn" id="btnCal" style="width:100%">📏 Kalibruj skalę</button>
+      <button class="tbtn" id="btnCal" style="width:100%">📏 Kalibruj skalę dwoma punktami</button>
       <div class="hint">Najpewniejszy sposób: kliknij na planie dwa punkty o znanej odległości (np. znany wymiar pomieszczenia), a program sam wyliczy skalę.</div>
       <button class="tbtn" id="btnBg" style="margin-top:8px;width:100%">Wgraj podkład (JPG / PNG / PDF)</button>
       <button class="tbtn" id="btnBgClear" style="margin-top:6px;width:100%;display:none;border-color:#f85149;color:#f85149">Usuń podkład</button>
@@ -379,7 +379,17 @@ function up(){drag=null;}
 cv.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
 // touch: najpierw wykryj podwójny tap (ustaw REF), potem zwykła interakcja
 let lastTap=0,lastTapXY=null;
+// pinch-to-zoom dwoma palcami (iPad/Safari)
+let pinch=null;
+function touchDist(t){return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);}
+function touchMid(t){const r=cv.getBoundingClientRect();return{x:(t[0].clientX+t[1].clientX)/2-r.left,y:(t[0].clientY+t[1].clientY)/2-r.top};}
 cv.addEventListener('touchstart',e=>{
+  if(e.touches.length===2){
+    e.preventDefault();
+    drag=null;
+    pinch={dist:touchDist(e.touches),mid:touchMid(e.touches),zoom:view.zoom,ox:view.ox,oy:view.oy};
+    return;
+  }
   if(calMode){e.preventDefault();const{x,y}=getXY(e);calClick(x,y);return;}
   const now=Date.now();const{x,y}=getXY(e);
   if(now-lastTap<300 && lastTapXY && Math.hypot(x-lastTapXY.x,y-lastTapXY.y)<30){
@@ -390,7 +400,20 @@ cv.addEventListener('touchstart',e=>{
   lastTap=now;lastTapXY={x,y};
   down(e);
 },{passive:false});
-cv.addEventListener('touchmove',move,{passive:false});cv.addEventListener('touchend',up);
+cv.addEventListener('touchmove',e=>{
+  if(pinch && e.touches.length===2){
+    e.preventDefault();
+    const f=touchDist(e.touches)/pinch.dist;
+    const newZoom=pinch.zoom*f;
+    view.ox=pinch.mid.x-(pinch.mid.x-pinch.ox)*f;
+    view.oy=pinch.mid.y-(pinch.mid.y-pinch.oy)*f;
+    view.zoom=newZoom;
+    draw();
+    return;
+  }
+  move(e);
+},{passive:false});
+cv.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null;up();});
 cv.addEventListener('dblclick',e=>{const{x,y}=getXY(e);const h=hit(x,y);if(h){state.refId=h.el.id;draw();renderTable();}});
 cv.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.1:0.9;const{x,y}=getXY(e);
   view.ox=x-(x-view.ox)*f;view.oy=y-(y-view.oy)*f;view.zoom*=f;draw();},{passive:false});
