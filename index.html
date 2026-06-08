@@ -1,4 +1,4 @@
-<!-- wersja: 2026-06-08 18:58 — przycisk "Wyśrodkuj" uwzględnia teraz wgrany podkład: jeśli jest tło, dopasowuje widok do całego planu (a nie tylko do głośników); jeśli tła nie ma, centruje wyłącznie do dodanych elementów, jak dotychczas -->
+<!-- wersja: 2026-06-08 19:50 — naprawiono "cień" (stożek pokrycia) głośnika: wcześniej miał stałą długość w pikselach i nie skalował się z zoomem. Teraz reprezentuje realny "zasięg pokrycia" w metrach (nowe pole "Zasięg pokrycia [m]" w inspektorze, edytowalne dla każdego elementu, z domyślnymi wartościami wg typu: Main 35m, Delay 30m, Sub 20m, Front-fill 12m) i przelicza się na piksele wg skali planu oraz aktualnego przybliżenia — dzięki temu cień poprawnie rośnie/maleje przy zoomowaniu, tak jak reszta sceny. -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -158,7 +158,7 @@
 <body>
 <header>
   <button class="tbtn" id="mLeft" title="Pokaż/ukryj panel boczny (lewy)">☰</button>
-  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v12</span></h1>
+  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v13</span></h1>
   <div class="spacer"></div>
   <button class="tbtn" id="btnFit" title="Dopasuj widok tak, by wszystkie elementy zmieściły się wycentrowane na scenie">⤢ Wyśrodkuj</button>
   <button class="tbtn" id="btnNew">Nowy</button>
@@ -249,6 +249,7 @@
           <div class="field" style="margin-bottom:0"><label>Kąt grania [°]</label><input id="selAngle" type="number" step="1" min="0" max="359"></div>
           <div class="field" style="margin-bottom:0"><label>Szerokość pokrycia [°]</label><input id="selSpread" type="number" step="1" min="1" max="360"></div>
         </div>
+        <div class="field" style="margin-bottom:8px"><label>Zasięg pokrycia [m] <span style="color:var(--dim);font-weight:400">— jak daleko „niesie" ten głośnik</span></label><input id="selThrow" type="number" step="1" min="1"></div>
         <div class="field" style="margin-bottom:0"><label>Latencja urządzenia/DSP [ms]</label><input id="selLat" type="number" step="0.1" value="0"></div>
         <div class="hint" id="subNote" style="display:none;color:var(--warn)">⚠ Sub: delay geometryczny to tylko punkt startowy — alignment z topami rób pomiarem (faza/crossover).</div>
       </div>
@@ -266,11 +267,13 @@
 const $=s=>document.querySelector(s);
 const cv=$('#stage'),ctx=cv.getContext('2d');
 
+// throwM = domyślny zasięg pokrycia [m] wg typu — orientacyjny "zasięg niesienia" danego systemu;
+// użytkownik może go zmienić indywidualnie dla każdego elementu w panelu inspektora
 const TYPES={
-  main:{nm:'Main / PA',ds:'system główny',col:'#ff6b1a'},
-  delay:{nm:'Delay line',ds:'linia opóźniająca',col:'#19c3ff'},
-  sub:{nm:'Subwoofer',ds:'niskie pasmo',col:'#a371f7'},
-  fill:{nm:'Front-fill',ds:'dogłośnienie',col:'#3fb950'},
+  main:{nm:'Main / PA',ds:'system główny',col:'#ff6b1a',throwM:35},
+  delay:{nm:'Delay line',ds:'linia opóźniająca',col:'#19c3ff',throwM:30},
+  sub:{nm:'Subwoofer',ds:'niskie pasmo',col:'#a371f7',throwM:20},
+  fill:{nm:'Front-fill',ds:'dogłośnienie',col:'#3fb950',throwM:12},
 };
 
 let state={els:[],refId:null,bg:null,bgImg:null};
@@ -307,7 +310,7 @@ window.addEventListener('resize',resize);
 function addEl(type,x,y){
   const id=Date.now()+Math.random();
   const label=TYPES[type].nm.split(' ')[0]+' '+(state.els.filter(e=>e.type===type).length+1);
-  const el={id,type,x,y,angle:DIR_ANGLE[frontDir],spread:70*Math.PI/180,label,lat:0,src:(type==='main')};
+  const el={id,type,x,y,angle:DIR_ANGLE[frontDir],spread:70*Math.PI/180,throwM:TYPES[type].throwM,label,lat:0,src:(type==='main')};
   state.els.push(el);
   if(type==='main' && state.refId===null){state.refId=id;}
   if(state.refId===null) state.refId=id;
@@ -459,8 +462,11 @@ function draw(){
 function getCSS(v){return getComputedStyle(document.body).getPropertyValue(v).trim()||'#ff6b1a';}
 function drawEl(e,isRef,isSel){
   const x=e.x*view.zoom+view.ox,y=e.y*view.zoom+view.oy;const c=TYPES[e.type].col;
-  // coverage cone — dłuższy i wyraźniejszy, szerokość zależna od kąta pokrycia (spread)
-  const half=(e.spread||70*Math.PI/180)/2, len=210;
+  // coverage cone — długość odzwierciedla realny zasięg [m] przeliczony na px wg skali i zoomu
+  // (dzięki temu cień skaluje się razem z planem przy przybliżaniu/oddalaniu, zamiast mieć stały rozmiar w pikselach)
+  const half=(e.spread||70*Math.PI/180)/2;
+  const throwM=e.throwM||TYPES[e.type].throwM||25;
+  const len=throwM/metersPerPx()*view.zoom;
   ctx.save();ctx.translate(x,y);ctx.rotate(e.angle);
   const grad=ctx.createRadialGradient(0,0,0,0,0,len);
   grad.addColorStop(0,c+'80');grad.addColorStop(.6,c+'40');grad.addColorStop(1,c+'00');
@@ -525,7 +531,8 @@ function renderTable(){
   renderTableRows();
   if(sel){$('#selLabel').value=sel.label;$('#selLat').value=sel.lat||0;$('#selSrc').checked=isSource(sel);
     $('#selAngle').value=Math.round((sel.angle*180/Math.PI+90+360)%360);
-    $('#selSpread').value=Math.round((sel.spread||70*Math.PI/180)*180/Math.PI);}
+    $('#selSpread').value=Math.round((sel.spread||70*Math.PI/180)*180/Math.PI);
+    $('#selThrow').value=sel.throwM||TYPES[sel.type].throwM||25;}
 }
 
 // ---- delete ----
@@ -548,6 +555,10 @@ $('#selAngle').addEventListener('input',()=>{
 $('#selSpread').addEventListener('input',()=>{
   if(!sel)return;const deg=parseFloat($('#selSpread').value);if(isNaN(deg)||deg<=0)return;
   sel.spread=Math.min(deg,360)*Math.PI/180;draw();
+});
+$('#selThrow').addEventListener('input',()=>{
+  if(!sel)return;const m=parseFloat($('#selThrow').value);if(isNaN(m)||m<=0)return;
+  sel.throwM=m;draw();
 });
 window.addEventListener('keydown',e=>{
   if((e.key==='Delete'||e.key==='Backspace')&&sel&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){
