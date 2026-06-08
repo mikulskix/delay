@@ -1,4 +1,4 @@
-<!-- wersja: 2026-06-08 16:31 -->
+<!-- wersja: 2026-06-08 16:52 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -116,14 +116,10 @@
   .tbl .sw{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:6px}
   .del{color:#f85149;cursor:pointer;font-weight:700}
 
-  @media(max-width:900px){
-    .side{position:absolute;left:0;top:0;bottom:0;z-index:40;transform:translateX(-100%);transition:.25s}
-    .side.open{transform:none}
-    .insp{position:absolute;right:0;top:0;bottom:0;z-index:40;transform:translateX(100%);transition:.25s}
-    .insp.open{transform:none}
-    .mob{display:inline-flex!important}
-  }
-  .mob{display:none}
+  /* Ukrywanie paneli bocznych — działa tak samo na komputerze i na tablecie,
+     pozwala pracować na pełnym ekranie. */
+  .side,.insp{transition:width .2s ease}
+  .side.collapsed,.insp.collapsed{width:0;padding-left:0;padding-right:0;border:none;overflow:hidden}
 
   /* --- Tryb pełnoekranowy (dodano do ekranu początkowego) + notch.
         env() = 0 na komputerze, więc desktop bez zmian. --- */
@@ -161,7 +157,7 @@
 </head>
 <body>
 <header>
-  <button class="tbtn mob" id="mLeft">☰</button>
+  <button class="tbtn" id="mLeft" title="Pokaż/ukryj panel boczny (lewy)">☰</button>
   <h1><span class="dot"></span>PA DELAY <span class="sub">designer · v1</span></h1>
   <div class="spacer"></div>
   <button class="tbtn" id="btnNew">Nowy</button>
@@ -170,13 +166,19 @@
   <button class="tbtn" id="btnCsv">CSV</button>
   <button class="tbtn pri" id="btnPdf">Eksport PDF</button>
   <button class="tbtn" id="btnTheme" title="Przełącz motyw">☀︎</button>
-  <button class="tbtn mob" id="mRight">📋</button>
+  <button class="tbtn" id="mRight" title="Pokaż/ukryj panel boczny (prawy)">📋</button>
   <input type="file" id="fileJson" accept=".json" hidden>
 </header>
 
 <main>
   <!-- SIDEBAR -->
   <aside class="side" id="side">
+    <div class="grp">
+      <h2>Dodaj element systemu</h2>
+      <div class="palette" id="palette"></div>
+      <div class="hint">Punkt <b>REF (0)</b> to linia odniesienia — od niej liczone są wszystkie opóźnienia. Linie głośnikowe (delay) dostają delay tak, by zgrać się czasowo z REF.</div>
+    </div>
+
     <div class="grp">
       <h2>Warunki akustyczne</h2>
       <div class="row2">
@@ -212,12 +214,6 @@
         <button class="tbtn dir" data-dir="down">↓ Front na dole</button>
       </div>
       <div class="hint">Ustawia domyślny kierunek grania nowych głośników i obraca te już dodane. Wybierz stronę, w którą grają głośniki względem sceny.</div>
-    </div>
-
-    <div class="grp">
-      <h2>Dodaj element — przeciągnij na scenę</h2>
-      <div class="palette" id="palette"></div>
-      <div class="hint">Punkt <b>REF (0)</b> to linia odniesienia — od niej liczone są wszystkie opóźnienia. Linie głośnikowe (delay) dostają delay tak, by zgrać się czasowo z REF.</div>
     </div>
   </aside>
 
@@ -644,9 +640,14 @@ function exportPdf(){
   w.document.close();setTimeout(()=>w.print(),400);
 }
 
-// mobile panels
-$('#mLeft').onclick=()=>$('#side').classList.toggle('open');
-$('#mRight').onclick=()=>$('#insp').classList.toggle('open');
+// ukrywanie paneli bocznych — pełny ekran (działa na komputerze i tablecie)
+function togglePanel(el){el.classList.toggle('collapsed');resize();}
+$('#mLeft').onclick=()=>togglePanel($('#side'));
+$('#mRight').onclick=()=>togglePanel($('#insp'));
+// po zakończeniu animacji szerokości jeszcze raz dopasuj canvas (płynność na tablecie)
+['side','insp'].forEach(id=>$('#'+id).addEventListener('transitionend',e=>{if(e.propertyName==='width')resize();}));
+// na wąskich ekranach (tablet w pionie/telefon) domyślnie chowamy panele, by od razu było widać scenę
+if(window.matchMedia('(max-width:900px)').matches){$('#side').classList.add('collapsed');$('#insp').classList.add('collapsed');}
 $('#setRefHint').onclick=()=>alert('Dwuklik (lub dwa tapnięcia) na elemencie ustawia go jako punkt REF (0) — odniesienie dla wszystkich opóźnień.');
 
 // Blokada przypadkowego zoomu strony na iPadzie (Safari bywa ignoruje user-scalable=no).
