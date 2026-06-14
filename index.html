@@ -178,10 +178,6 @@
       <h2>Dodaj element systemu</h2>
       <div class="palette" id="palette"></div>
       <div class="hint">Punkt <b>REF (0)</b> to linia odniesienia — od niej liczone są wszystkie opóźnienia. Linie głośnikowe (delay) dostają delay tak, by zgrać się czasowo z REF.</div>
-      <div class="field" style="margin-top:12px;margin-bottom:0">
-        <label>Przezroczystość cieni głośników <span id="coneOpVal" class="mono" style="color:var(--acc2)">80%</span></label>
-        <input id="coneOp" type="range" min="0" max="100" value="80" style="width:100%">
-      </div>
     </div>
 
     <div class="grp">
@@ -204,9 +200,42 @@
       <button class="tbtn" id="btnBg" style="margin-top:8px;width:100%">Wgraj podkład (JPG / PNG / PDF)</button>
       <button class="tbtn" id="btnBgClear" style="margin-top:6px;width:100%;display:none;border-color:#f85149;color:#f85149">Usuń podkład</button>
       <input type="file" id="fileBg" accept="image/*,application/pdf" hidden>
-      <div class="field" style="margin-top:10px;margin-bottom:0">
+      <div class="field" style="margin-top:10px;margin-bottom:6px">
         <label>Krycie planu <span id="bgOpVal" class="mono" style="color:var(--acc2)">80%</span></label>
         <input id="bgOp" type="range" min="0" max="100" value="80" style="width:100%">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Przezroczystość cieni głośników <span id="coneOpVal" class="mono" style="color:var(--acc2)">80%</span></label>
+        <input id="coneOp" type="range" min="0" max="100" value="80" style="width:100%">
+      </div>
+    </div>
+
+    <div class="grp">
+      <h2>Zoom widoku</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="tbtn" id="btnZoomOut" style="padding:7px 11px;font-size:16px;flex-shrink:0">−</button>
+        <input id="zoomSlider" type="range" min="5" max="400" value="100" style="flex:1">
+        <button class="tbtn" id="btnZoomIn" style="padding:7px 11px;font-size:16px;flex-shrink:0">+</button>
+        <button class="tbtn" id="btnZoomReset" style="flex-shrink:0;font-size:11px">100%</button>
+      </div>
+      <div style="text-align:center;margin-top:6px;font-size:11px;color:var(--dim)">Zoom: <b id="zoomVal" class="mono" style="color:var(--acc2)">100%</b></div>
+    </div>
+
+    <div class="grp">
+      <h2>Narzędzia pomiarowe</h2>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <button class="tbtn tool-btn" id="btnRuler" data-tool="ruler" style="flex:1">📐 Dalmierz</button>
+        <button class="tbtn tool-btn" id="btnProtr" data-tool="protr" style="flex:1">∠ Kątomierz</button>
+      </div>
+      <div id="toolHint" class="hint" style="display:none"></div>
+      <div id="toolResult" style="display:none;margin-top:8px;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:10px 12px">
+        <div id="toolResultVal" class="mono" style="font-size:20px;font-weight:700;color:var(--acc2)"></div>
+        <div id="toolResultSub" style="font-size:11px;color:var(--dim);margin-top:3px"></div>
+        <button class="tbtn" id="btnToolClear" style="margin-top:8px;width:100%;font-size:11px">Wyczyść pomiar</button>
+      </div>
+      <div id="toolHistory" style="margin-top:8px;display:none">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:6px">Ostatnie pomiary</div>
+        <div id="toolHistoryList" style="font-size:11px;color:var(--dim);line-height:2"></div>
       </div>
     </div>
 
@@ -229,6 +258,7 @@
       <div class="pill">REF (0): <b id="refName">— brak —</b> <button id="setRefHint">?</button></div>
       <div class="pill" id="anglePill" style="display:none">Kąt zaznacz.: <b id="angleVal">0°</b></div>
       <div class="pill" id="calPill" style="display:none;border-color:var(--acc);color:var(--acc)"><b id="calMsg">Kalibracja</b> <button id="calCancel" style="color:var(--dim)">✕</button></div>
+      <div class="pill" id="toolPill" style="display:none;border-color:var(--acc2);color:var(--acc2)"><b id="toolMsg"></b> <button id="toolCancel" style="color:var(--dim)">✕</button></div>
     </div>
     <div class="legend">
       <div><span style="color:var(--acc)">●</span> obrót: uchwyt na obwodzie · klik = zaznacz</div>
@@ -376,6 +406,7 @@ function endCal(){calMode=false;calPts=[];$('#calPill').style.display='none';$('
 function down(e){
   const{x,y}=getXY(e);
   if(calMode){calClick(x,y);return;}
+  if(toolMode){toolClick((x-view.ox)/view.zoom,(y-view.oy)/view.zoom);return;}
   const h=hit(x,y);
   if(h){sel=h.el;drag={mode:h.mode,el:h.el};draw();renderTable();}
   else{sel=null;drag={mode:'pan',sx:x-view.ox,sy:y-view.oy};draw();renderTable();}
@@ -403,6 +434,7 @@ cv.addEventListener('touchstart',e=>{
     return;
   }
   if(calMode){e.preventDefault();const{x,y}=getXY(e);calClick(x,y);return;}
+  if(toolMode){e.preventDefault();const{x,y}=getXY(e);toolClick((x-view.ox)/view.zoom,(y-view.oy)/view.zoom);return;}
   const now=Date.now();const{x,y}=getXY(e);
   if(now-lastTap<300 && lastTapXY && Math.hypot(x-lastTapXY.x,y-lastTapXY.y)<30){
     e.preventDefault(); // blokuje double-tap zoom tylko na płótnie
@@ -420,6 +452,7 @@ cv.addEventListener('touchmove',e=>{
     view.ox=pinch.mid.x-(pinch.mid.x-pinch.ox)*f;
     view.oy=pinch.mid.y-(pinch.mid.y-pinch.oy)*f;
     view.zoom=newZoom;
+    syncZoomSlider();
     draw();
     return;
   }
@@ -428,7 +461,26 @@ cv.addEventListener('touchmove',e=>{
 cv.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null;up();});
 cv.addEventListener('dblclick',e=>{const{x,y}=getXY(e);const h=hit(x,y);if(h){state.refId=h.el.id;draw();renderTable();}});
 cv.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.1:0.9;const{x,y}=getXY(e);
-  view.ox=x-(x-view.ox)*f;view.oy=y-(y-view.oy)*f;view.zoom*=f;draw();},{passive:false});
+  view.ox=x-(x-view.ox)*f;view.oy=y-(y-view.oy)*f;view.zoom*=f;syncZoomSlider();draw();},{passive:false});
+
+// ---- suwak zoom ----
+function syncZoomSlider(){
+  const pct=Math.round(view.zoom*100);
+  $('#zoomSlider').value=Math.max(5,Math.min(400,pct));
+  $('#zoomVal').textContent=pct+'%';
+}
+function applyZoom(newZoom){
+  const W=cv.clientWidth,H=cv.clientHeight;
+  const cx=W/2,cy=H/2;
+  view.ox=cx-(cx-view.ox)*(newZoom/view.zoom);
+  view.oy=cy-(cy-view.oy)*(newZoom/view.zoom);
+  view.zoom=newZoom;
+  syncZoomSlider();draw();
+}
+$('#zoomSlider').addEventListener('input',()=>applyZoom(parseInt($('#zoomSlider').value)/100));
+$('#btnZoomIn').onclick=()=>applyZoom(Math.min(4,view.zoom*1.25));
+$('#btnZoomOut').onclick=()=>applyZoom(Math.max(0.05,view.zoom/1.25));
+$('#btnZoomReset').onclick=()=>applyZoom(1);
 
 // ---- draw ----
 function theme(){
@@ -454,6 +506,8 @@ function draw(){
   });}
   // elements
   state.els.forEach(e=>drawEl(e,e.id===state.refId,e===sel));
+  // narzędzia pomiarowe (na wierzchu elementów)
+  drawTools();
   // punkty kalibracji
   if(calMode && calPts.length){
     ctx.strokeStyle=getCSS('--acc');ctx.fillStyle=getCSS('--acc');ctx.lineWidth=2;
@@ -580,12 +634,200 @@ $('#btnSpreadGroup').onclick=()=>{
   state.els.forEach(e=>{if(e.type===sel.type)e.spread=sel.spread;});
   draw();renderTableRows();scheduleAutosave();
 };
+
+
+// ====== NARZĘDZIA POMIAROWE ======
+let toolMode=null; // 'ruler' | 'protr' | null
+let toolPts=[];    // punkty robocze (współrzędne świata)
+let toolMouse=null;// pozycja myszy/palca na żywo
+const toolHistory=[];// max 5 ostatnich wyników
+
+const TOOL_HINTS={
+  ruler:'Kliknij kolejne punkty, by mierzyć dystans. Kliknij dwukrotnie ostatni punkt (lub naciśnij Enter), by zakończyć i zsumować.',
+  protr:'Kliknij wierzchołek kąta (1/3), potem pierwsze ramię (2/3), potem drugie ramię (3/3). Kąt wyświetli się automatycznie.',
+};
+
+function startTool(mode){
+  if(toolMode)endTool();
+  toolMode=mode;toolPts=[];toolMouse=null;
+  $('#toolPill').style.display='';$('#toolMsg').textContent=mode==='ruler'?'Dalmierz — kliknij punkt startowy':'Kątomierz — kliknij wierzchołek';
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.toggle('pri',b.dataset.tool===mode));
+  $('#toolHint').style.display='';$('#toolHint').textContent=TOOL_HINTS[mode];
+  $('#toolResult').style.display='none';
+  cv.style.cursor='crosshair';
+  if(window.matchMedia('(max-width:900px)').matches)$('#side').classList.remove('collapsed');
+  draw();
+}
+function endTool(){
+  toolMode=null;toolPts=[];toolMouse=null;
+  $('#toolPill').style.display='none';
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('pri'));
+  $('#toolHint').style.display='none';
+  cv.style.cursor='';
+  draw();
+}
+function toolClick(wx,wy){
+  if(!toolMode)return;
+  if(toolMode==='ruler'){
+    // sprawdź double-click (drugi klik w < 300ms i blisko)
+    const last=toolPts[toolPts.length-1];
+    const screenDist=last?Math.hypot((wx-last.x)*view.zoom,(wy-last.y)*view.zoom):999;
+    if(toolPts.length>=2 && screenDist<15){rulerFinish();return;}
+    toolPts.push({x:wx,y:wy});
+    if(toolPts.length===1)$('#toolMsg').textContent='Dalmierz — kliknij kolejny punkt (dwuklik ostatniego = koniec)';
+    updateToolResult();draw();
+  } else if(toolMode==='protr'){
+    toolPts.push({x:wx,y:wy});
+    if(toolPts.length===1)$('#toolMsg').textContent='Kątomierz — kliknij punkt na pierwszym ramieniu';
+    else if(toolPts.length===2)$('#toolMsg').textContent='Kątomierz — kliknij punkt na drugim ramieniu';
+    else if(toolPts.length>=3){protrFinish();return;}
+    draw();
+  }
+}
+function rulerFinish(){
+  if(toolPts.length<2)return;
+  let total=0;
+  for(let i=1;i<toolPts.length;i++)total+=distM(toolPts[i-1],toolPts[i]);
+  const ms=total/speedOfSound()*1000;
+  const result=`${total.toFixed(2)} m`;
+  const sub=`${ms.toFixed(1)} ms przy ${speedOfSound().toFixed(0)} m/s · ${toolPts.length-1} odcinek${toolPts.length===2?'':'ów'}`;
+  showToolResult(result,sub,'📐 Dalmierz');
+}
+function protrFinish(){
+  const [v,a,b]=toolPts;
+  const ang1=Math.atan2(a.y-v.y,a.x-v.x);
+  const ang2=Math.atan2(b.y-v.y,b.x-v.x);
+  let deg=Math.abs((ang2-ang1)*180/Math.PI);
+  if(deg>180)deg=360-deg;
+  const result=`${deg.toFixed(1)}°`;
+  const sub=`kąt między ramieniami mierzony w wierzchołku`;
+  showToolResult(result,sub,'∠ Kątomierz');
+}
+function updateToolResult(){
+  if(toolMode==='ruler' && toolPts.length>=2){
+    let total=0;for(let i=1;i<toolPts.length;i++)total+=distM(toolPts[i-1],toolPts[i]);
+    const ms=total/speedOfSound()*1000;
+    $('#toolResult').style.display='block';
+    $('#toolResultVal').textContent=total.toFixed(2)+' m';
+    $('#toolResultSub').textContent=ms.toFixed(1)+' ms · na żywo';
+  }
+}
+function showToolResult(val,sub,label){
+  $('#toolResult').style.display='block';
+  $('#toolResultVal').textContent=val;
+  $('#toolResultSub').textContent=sub;
+  addHistory(label,val,sub);
+  $('#toolMsg').textContent='Gotowe — zacznij od nowa lub zamknij';
+  toolPts=[];toolMouse=null;draw();
+}
+function addHistory(label,val,sub){
+  toolHistory.unshift({label,val,sub,time:new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})});
+  if(toolHistory.length>5)toolHistory.pop();
+  renderHistory();
+}
+function renderHistory(){
+  if(!toolHistory.length){$('#toolHistory').style.display='none';return;}
+  $('#toolHistory').style.display='block';
+  $('#toolHistoryList').innerHTML=toolHistory.map(h=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--line)"><span style="color:var(--dim)">${h.time} ${h.label}</span><b class="mono" style="color:var(--txt)">${h.val}</b></div>`).join('');
+}
+// rysowanie narzędzi na kanvasie
+function drawTools(){
+  if(!toolMode)return;
+  const acc2=getCSS('--acc2'),acc=getCSS('--acc');
+  ctx.save();
+  // punkty robocze
+  const pts=toolPts.map(p=>({sx:p.x*view.zoom+view.ox,sy:p.y*view.zoom+view.oy}));
+  const mouse=toolMouse?{sx:toolMouse.x*view.zoom+view.ox,sy:toolMouse.y*view.zoom+view.oy}:null;
+
+  if(toolMode==='ruler'){
+    const allPts=[...pts];if(mouse&&pts.length>0)allPts.push({sx:mouse.sx,sy:mouse.sy});
+    // linie segmentów
+    if(allPts.length>=2){
+      ctx.strokeStyle=acc2;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.moveTo(allPts[0].sx,allPts[0].sy);
+      for(let i=1;i<allPts.length;i++)ctx.lineTo(allPts[i].sx,allPts[i].sy);
+      ctx.stroke();ctx.setLineDash([]);
+    }
+    // punkty + etykiety dystansów
+    let cum=0;
+    pts.forEach((p,i)=>{
+      ctx.fillStyle=acc2;ctx.beginPath();ctx.arc(p.sx,p.sy,5,0,7);ctx.fill();
+      ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.stroke();
+      if(i>0){
+        const prev=pts[i-1];const seg=distM(toolPts[i-1],toolPts[i]);cum+=seg;
+        const mx=(p.sx+prev.sx)/2,my=(p.sy+prev.sy)/2-12;
+        ctx.font='600 11px Archivo';ctx.fillStyle=acc2;ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillStyle='rgba(0,0,0,.55)';roundRect(mx-26,my-9,52,18,4);ctx.fill();
+        ctx.fillStyle=acc2;ctx.fillText(seg.toFixed(1)+'m',mx,my);
+      }
+    });
+    // suma przy kursorem
+    if(mouse&&pts.length>0){
+      const last=pts[pts.length-1];
+      const seg=distM(toolPts[toolPts.length-1],toolMouse);
+      let total=0;for(let i=1;i<toolPts.length;i++)total+=distM(toolPts[i-1],toolPts[i]);total+=seg;
+      ctx.font='700 13px JetBrains Mono';ctx.fillStyle=acc2;ctx.textAlign='left';ctx.textBaseline='middle';
+      const label=`Σ ${total.toFixed(2)} m`;
+      ctx.fillStyle='rgba(0,0,0,.7)';roundRect(mouse.sx+12,mouse.sy-12,ctx.measureText(label).width+16,22,5);ctx.fill();
+      ctx.fillStyle=acc2;ctx.fillText(label,mouse.sx+20,mouse.sy);
+    }
+  } else if(toolMode==='protr'){
+    const allPts=[...pts];if(mouse&&pts.length>0&&pts.length<3)allPts.push({sx:mouse.sx,sy:mouse.sy,wx:toolMouse.x,wy:toolMouse.y});
+    // ramiona
+    if(allPts.length>=2){
+      ctx.strokeStyle=acc;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.moveTo(allPts[0].sx,allPts[0].sy);ctx.lineTo(allPts[1].sx,allPts[1].sy);ctx.stroke();
+    }
+    if(allPts.length>=3){
+      ctx.beginPath();ctx.moveTo(allPts[0].sx,allPts[0].sy);ctx.lineTo(allPts[2].sx,allPts[2].sy);ctx.stroke();ctx.setLineDash([]);
+      // kąt na żywo
+      const vp=allPts[0];
+      const a1=Math.atan2(allPts[1].sy-vp.sy,allPts[1].sx-vp.sx);
+      const a2=Math.atan2(allPts[2].sy-vp.sy,allPts[2].sx-vp.sx);
+      let deg=Math.abs((a2-a1)*180/Math.PI);if(deg>180)deg=360-deg;
+      // łuk kąta
+      const r=40;const aStart=Math.min(a1,a2),aEnd=Math.max(a1,a2);
+      const span=aEnd-aStart;
+      ctx.strokeStyle=acc;ctx.lineWidth=1.5;ctx.setLineDash([]);
+      ctx.beginPath();ctx.arc(vp.sx,vp.sy,r,span>Math.PI?aEnd:aStart,span>Math.PI?aStart+2*Math.PI:aEnd);ctx.stroke();
+      // etykieta kąta
+      const midA=(a1+a2)/2+(span>Math.PI?Math.PI:0);
+      const lx=vp.sx+Math.cos(midA)*(r+22),ly=vp.sy+Math.sin(midA)*(r+22);
+      const label=deg.toFixed(1)+'°';
+      ctx.font='700 14px JetBrains Mono';
+      ctx.fillStyle='rgba(0,0,0,.7)';roundRect(lx-28,ly-11,ctx.measureText(label).width+16,22,5);ctx.fill();
+      ctx.fillStyle=acc;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(label,lx-20,ly);
+    }
+    // punkty
+    allPts.forEach((p,i)=>{
+      ctx.fillStyle=i===0?acc:acc2;ctx.beginPath();ctx.arc(p.sx,p.sy,i===0?7:5,0,7);ctx.fill();
+      ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.stroke();
+    });
+  }
+  ctx.restore();
+}
+// obsługa kliknięć narzędzi w down()
+$('#toolCancel').onclick=endTool;
+$('#btnToolClear').onclick=()=>{toolPts=[];toolMouse=null;$('#toolResult').style.display='none';$('#toolMsg').textContent=toolMode==='ruler'?'Dalmierz — kliknij punkt startowy':'Kątomierz — kliknij wierzchołek';draw();};
+document.querySelectorAll('.tool-btn').forEach(b=>b.onclick=()=>{
+  if(toolMode===b.dataset.tool)endTool();else startTool(b.dataset.tool);
+});
+// śledzenie myszy na płótnie dla podglądu na żywo
+cv.addEventListener('mousemove',e=>{
+  if(!toolMode)return;
+  const{x,y}=getXY(e);
+  toolMouse={x:(x-view.ox)/view.zoom,y:(y-view.oy)/view.zoom};
+  if(toolMode==='ruler')updateToolResult();
+  draw();
+});
+cv.addEventListener('mouseleave',()=>{toolMouse=null;draw();});
 window.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){if(toolMode)endTool();if(calMode)endCal();}
+  if(e.key==='Enter'&&toolMode==='ruler'&&toolPts.length>=2){rulerFinish();}
   if((e.key==='Delete'||e.key==='Backspace')&&sel&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){
     e.preventDefault();deleteEl(sel);
   }
 });
-
 // ---- controls ----
 ['temp','sr','haas','scale'].forEach(id=>$('#'+id).addEventListener('input',()=>{draw();renderTable();}));
 $('#btnNew').onclick=()=>{if(confirm('Nowy projekt? Niezapisane zmiany przepadną.')){state={els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};sel=null;view={zoom:1,ox:0,oy:0};draw();renderTable();clearAutosave();}};
@@ -662,7 +904,7 @@ function fitToScreen(){
   zoom=Math.max(0.05,Math.min(zoom,4)); // rozsądne granice powiększenia
   const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
   view.zoom=zoom;view.ox=W/2-cx*zoom;view.oy=H/2-cy*zoom;
-  draw();
+  syncZoomSlider();draw();
 }
 $('#btnFit').onclick=fitToScreen;
 
