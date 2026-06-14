@@ -624,23 +624,33 @@ function scheduleCloudSave() {
 }
 
 $('#btnSave').onclick = async () => {
-  if(!currentProjectId) {
-    // Nowy projekt - pokaż dialog do zapisania
-    const name = prompt('Nazwa projektu:', 'Mój projekt');
-    if(!name) return;
+  if(!currentUser || !db) { alert('Brak połączenia z Firebase — zaloguj się ponownie.'); return; }
+  try {
+    if(!currentProjectId) {
+      // Nowy projekt - pokaż dialog do zapisania
+      const name = prompt('Nazwa projektu:', 'Mój projekt');
+      if(!name) return;
 
-    const docRef = await db.collection('users').doc(currentUser.uid).collection('projects').add({
-      name,
-      ...buildProjectData(),
-      updatedAt: new Date(),
-      createdAt: new Date()
-    });
-    currentProjectId = docRef.id;
-    $('#projTitle').textContent = name;
-    alert('✅ Projekt zapisany w chmurze!');
-  } else {
-    await cloudSave();
-    alert('✅ Projekt zaktualizowany!');
+      const docRef = await db.collection('users').doc(currentUser.uid).collection('projects').add({
+        name,
+        ...buildProjectData(),
+        updatedAt: new Date(),
+        createdAt: new Date()
+      });
+      currentProjectId = docRef.id;
+      $('#projTitle').textContent = name;
+      alert('✅ Projekt zapisany w chmurze!');
+    } else {
+      await cloudSave();
+      alert('✅ Projekt zaktualizowany!');
+    }
+  } catch(err) {
+    console.error('Cloud save error:', err);
+    if(err.code === 'permission-denied') {
+      alert('❌ Zapis odrzucony przez Firebase (permission-denied).\n\nReguły bezpieczeństwa Firestore blokują zapis. Trzeba je zaktualizować w konsoli Firebase (Firestore → Rules).');
+    } else {
+      alert('❌ Nie udało się zapisać w chmurze:\n' + err.message);
+    }
   }
 };
 
