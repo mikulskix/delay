@@ -1,4 +1,5 @@
-<!-- wersja: 2026-06-08 20:12 — w inspektorze dodano przycisk "↪ Zastosuj szerokość do wszystkich w grupie [typ]": kopiuje wartość pola "Szerokość pokrycia [°]" zaznaczonego głośnika na wszystkie elementy tego samego typu (np. wszystkie Delay line naraz), z potwierdzeniem przed zastosowaniem. Przycisk pojawia się tylko, gdy w danej grupie jest więcej niż 1 element. -->
+<!-- PA Delay Designer v2 with Firebase Auth + Cloud Storage
+     wersja: 2026-06-14 — dodane logowanie, synchronizacja projektów w chmurze, menu ostatnich projektów -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -9,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PA Delay">
 <meta name="theme-color" content="#0d1014">
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAALwUlEQVR4nO2dWWxU1xnHz3jsMsYYbLCxA9gkGCcshTRFEAOBYBDBxjYYjJeoS6pWVaU8VKr6UKmqEhXxEClSllapWjUPqVBTdyHY4C3QNGxmM4uxoS2qBtqyBjssdsFT4fH04Ybb8dz73bnLOefeO/x/4mF85y7HPr/7fed+58wQyM7JYwDokeZ2A4B3gRyABHIAEsgBSCAHIIEcgARyABLIAUggByBJd+WqRSULXbmur7kSviD5igFp5XMIwRE5ogiXQ9eJwZtXhF40JckrLNJuFGqJKDm0TkAIjmhFEWGJEDnizYATQom3hLsfnOWAFq4gSBGecqhmQAtXUBXh5QcfOaCFd+CoCIciGMzwFGovOK8dOJUDZngQXn44SivKtaGFZ1FSjO38Yj9ywAzvo/SO7fhhUw6Y4Rec+GFHDsyS+BEbvWY/rSBs+AXbPWVZDiQUP2IvuViTA2b4Fxt+YCUYILEgB8KG37EaPMzKgSeUVMJkb1pbQ+o8bHxWG9FuLGgJOTwtMMngzSu6K8p0kbfAWFeL+LegiNcwNbficLRhoIUWKCIBk3Muwp9WLJlhY38gDrFy2Otp+OERksthO6c46WP4IRSTz7QoggESUXI4v/URPFwHkQOQJJHD3oCD102P4CEOM8MORA5AAjkACeQAJJADkEAOQAI5AImQKfuClhCXp1DzM7RZWRMvXey3ev6RkZF7Q0PDQ8MDg5/39Z/v7evvOXXm6tVrVs+jUru5+lfvvZt0t7IX1l7+579sX0Ua7nxhnEfIzMzMzMwsLCgoLZ27YvnzjLFYLNZ99PjOD5vb27sejo5aPWFTQ52Z3Rrr69548y3LzZVOkvUcTlZyOAwelhZ22IscBvztPvvBP1jff774MdpUkvSQwoKCMycPB4PBpHteu3Z9SdnqWCzmsJEOSbqq47GOHAbMz2Jtz7Ltl9n71xljLNgcTthBq0t9Xa0ZMxhjM2fOWLmi7Ej3MR4tFYjAAamTNV1eWA+WHmDb57CvF+q/G2wOq/+ULY31W82f3GQCchexTyv2+tgLZqi8MWds6dtNxvsEm8NL28OlpXPNn7Z6Y8WkSVnOmiYc4WnF6pOLp8xgjKWlpW1//ScbquYmDBESEk39dGunzczMrKmq/N3v/+S8heKQMeZQ+jupIra1CDaHk+b655auvH7jZvyWydnZs2cXrS1f891vv5KfbzQqf3bxl2uqKve0dcRvVMccwebwl9JYbb7lZjc21HlcDnlFsIKWENX9Bm8ZE5/yrTI0PNx//q/v/vwXq9dVnOw5bbxzVeUG6q1oU8lLO78/xfpdVrZs6exisx8hcQXZTyu8soZtJ7Tcvn3nle9879ihP+fk5FD7rFmzKhgMRqNR3Xcb6KHopRE2YwIL6d2DgUCgYdvWN99KXjRzC1+Wz3UeLL+1yMkJb9++85udHxrskDNlSnHRLN23pufnl7+4ijrwj7fYJ7fJ0zZs2xIIBEw3UzY+k0ObR6JNJWYqVEk5eLjbeAdqXFK/zai80TrA9gyS5ywuLlpetsxcA13AT3II0kLhxvjhqpa8adN0tzfWkxWL3r7+cG1JV/XC+/rpKMnhruMPORICBl8tFJKG9xjTqXZ/ZfGiZ54upQ5paW1jjEUikX1791L71FRVTpw40XQzpeIDObQBQ8RVZsx4wniHwcHPtRsb6UJnLBZr3dOmvN796IWWrKyJNVUV5tooG6/LITpgqKxetdJ4B60cGRkZWzbXUPuf7DmtVlb+8unBoeFhas+mhm2mmykV78qhTSXirjVt2tRvfs2oRn737t1/X7masHHD+nW5uTnUIS1x0eLhw4edXfupPZcvf37WrJlm2yoRj8ohJ5Uo5ObmfPD+Lw2KHIyxAwePaIscBpNn0Wg0oaLa0koOOwKMvfyHQ6baKhcvTtnLCRjZ2ZNmFxevW5u8fM4Ya+voStiSn59XvuZFav/uo8cT0tChI9137tylIs226ezt5vCoyHvABp6TQ5AZZ3uSlDEMONd3XitH3ZbN6elkeUM7Ah0djbZ1dH2DSF5PhtiyyexEc1hojLSKt9KKtEGGecbGxl776Q7tqi2D1RsPR0c7Oj7Wbm+hn1kYY40FjHGdFnCOh+TwoBmMsR/9+LXjJ3oSNi5etHDB/HnUIQcOHLp77552+9FjJ24NDFBHVeexzDTGvOSHV+TwoBmjMfb6Jfbb6h3atxoMy5q7W/UjxNjY2N62TuqoSUG28dHIxyN+eEIOD5rx9wes+hz79aMFpPErAjPS0+tqN1EHRiKRrn3kU6txZmm4dVR97QU/PCGHiutmxBjrvsdevcg2nP3/0vN4gs3hDZ0Xp07Npc6w/5NP799/QL3bc+rM9es3qHdXrigr/CE5wSsf959W1FtEvhmRSOTe0NDQ0PDA4GB//4Xec/0nT53Wfqgp4SZWRo4UNVWVn121edOnpaXV1215p6lEuWLQ7YcXl+WQFjyX9LAb/2XMloLxh0zfFS4nowYHGuu3vvOz99Qf3fXDzbQic6gx9upKLlMztZ07MkSuzpnz1JPLli6Jb6eLgw9PjDlcH2qYR8LnTZRLeOFv4pocLg41bLNg/ryFC+aLvsqm6qpQKMTGL3AXfVFd3JGD+28b/IDnB2UpXm6UMbeenT1pY8VLCRtd8cPltMIlbMj5w6WnB7fS5Q2+qMnrsXta4ZhQZN5P69aW5+XpLyNljJ3tPVdR/cVsi5n1BqFQ6ELvSeoTkateWDHjiUJlrVDUvSdb2ZGDY3dKjrTGQ9FdH7WqrxO6ULedkUikvVNnck5BKXhot0v+lV1LKw5vgsTlg84+t5KU3Nyc9evKqXej0WjL3vZxW8Y/Nut26q7drdqNKvEflHIruUiVg5f48udi6mo3ZWRkUO8ePNw9MKDz6RRjP450HzOYpJ1bMmfJV5/TbpcZPNyJHLx6VNot1Wi4Bjg+pyRg0MJoNNpCzN8qxCcyV4KHPDm4hw1pf695zzy9eBH5HeEjIyMdXfsMDjcoVxhYxRjbvKlqwoQJ2u3SgocLkcNJp7ryuG88FO38eP+DB+Q0bAIJ7e/t6w9fukztPGXy5MqK9eqP8oOHwC+MS8D5He/BZR/m4dJ4vlEz6RfGSYocfH8r35nBeP/iciKoJybezODHuZgEXJ8rsYqkCqla5rOH0L+mwcnFieiw3CnnDpFXPvdaQjEjHPdw5fAm4dgSM/ggrfCfwrX+TWJOvnzM4Jx8T8gd99eQmkfQRJ3BaRP2V3502AznwUMaXpdD3ESdmT7WHUJynB11fQmxMT5IKwqcJ+osns3MRJqlszk5XBq+kcMJvKpnHln3Kw15FVK34F5X9XWhNh6vVEjdQkRHPj7xI5XlEHeLPyZ+pLIcKiKCv68TiklSVg4JczG+myuxSsrKAZyTmnJIm8JN7eDh9QqpPWQOCFJ48JGakQNwAXIAEsgBSCAHIIEcgARyABLIAUggByCBHIAEcgASyAFIIAcggRyABHIAEsgBSCAHIIEcgARyABLIAUggByCBHIAEcgASyAFIIAcggRyABHIAEsgBSCAHIIEcgARyABLIAUggByCBHIAEcgASyAFIIAcggRyABHIAEsgBSJLIofx/C8r/vQBSiaT/nwZD5AAGQA5AAjkASXI5MOxIPcwMOBgiBzAAcgASU3Igs6QSJnMKQ+QABliTA8HD71jqQbNymIlCwC+Y7E0LkQMjD79jfrShgDEHILEmB4KHf7EaNpiNyAE//IgNM5iTtAI//ILtnrIjB55c/IiNXrMZOZBc/IK9hKJgP63AD+/jxAzGWCA7J8/J5YtKFiovBm9ecXIewBf1pnUyBnBa51CvjRDiHbiYwbgUweCHp+BlBnOeVuJBinEXjloo8JSDxfnBoIhE4mM2x0IDZzkUoIg0BGmhIEQONt4PBVjCEe3wTkRlUpQcKlpLGESxhe54X2i1WrgcKrqWAHvImcGQJ0c8EMUG8qe03JED+AKsBAMkkAOQQA5AAjkACeQAJJADkEAOQAI5AMn/AI2GZAKQREztAAAAAElFTkSuQmCC">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAALwUlEQVR4nO2dWWxU1xnHz3jsMsYYbLCxA9gkGCcshTRFEAOBYBDBxjYYjJeoS6pWVaU8VKr6UKmqEhXxEClSllapWjUPqVBTdyHY4C3QNGxmM4uxoS2qBtqyBjssdsFT4fH04Ybb8dz73bnLOefeO/x/4mF85y7HPr/7fed+58wQyM7JYwDokeZ2A4B3gRyABHIAEsgBSCAHIIEcgARyABLIAUggByBJd+WqRSULXbmur7kSviD5igFp5XMIwRE5ogiXQ9eJwZtXhF40JckrLNJuFGqJKDm0TkAIjmhFEWGJEDnizYATQom3hLsfnOWAFq4gSBGecqhmQAtXUBXh5QcfOaCFd+CoCIciGMzwFGovOK8dOJUDZngQXn44SivKtaGFZ1FSjO38Yj9ywAzvo/SO7fhhUw6Y4Rec+GFHDsyS+BEbvWY/rSBs+AXbPWVZDiQUP2IvuViTA2b4Fxt+YCUYILEgB8KG37EaPMzKgSeUVMJkb1pbQ+o8bHxWG9FuLGgJOTwtMMngzSu6K8p0kbfAWFeL+LegiNcwNbficLRhoIUWKCIBk3Muwp9WLJlhY38gDrFy2Otp+OERksthO6c46WP4IRSTz7QoggESUXI4v/URPFwHkQOQJJHD3oCD102P4CEOM8MORA5AAjkACeQAJJADkEAOQAI5AImQKfuClhCXp1DzM7RZWRMvXey3ev6RkZF7Q0PDQ8MDg5/39Z/v7evvOXXm6tVrVs+jUru5+lfvvZt0t7IX1l7+579sX0Ua7nxhnEfIzMzMzMwsLCwoLZ27YvnzjLFYLNZ99PjOD5vb27sejo5aPWFTQ52Z3Rrr69558y3LzZVOkvUcTlZyOAwelhZ22IscBvztPvvBP1jff774MdpUkvSQwoKCMycPB4PBpHteu3Z9SdnqWCzmsJEOSbqq47GOHAbMz2Jtz7Ltl9n71xljLNgcTthBq0t9Xa0ZMxhjM2fOWLmi7Ej3MR4tFYjAAamTNV1eWA+WHmDb57CvF+q/G2wOq/+ULY31W82f3GQCchexTyv2+tgLZqi8MWds6dtNxW8Y/Nut26q7drdqNKvEflHIruUiVg5f48udi6mo3ZWRkUO8ePNw9MKDz6RRjP450HzOYpJ1bMmfJV5/TbpcZPNyJHLx6VNot1Wi4Bjg+pyRg0MJoNNpCzN8qxCcyV4KHPDm4hw1pf695zzy9eBH5HeEjIyMdXfsMDjcoVxhYxRjbvKlqwoQJ2u3SgocLkcNJp7ryuG88FO38eP+DB+Q0bAIJ7e/t6w9fukztPGXy5MqK9eqP8oOHwC+MS8D5He/BZR/m4dJ4vlEz6RfGSYocfH8r35nBeP/iciKoJybezODHuZgEXJ8rsYqkCqla5rOH0L+mwcnFieiw3CnnDpFXPvdaQjEjHPdw5fAm4dgSM/ggrfCfwrX+TWJOvnzM4Jx8T8gd99eQmkfQRJ3BaRP2V3502AznwUMaXpdD3ESdmT7WHUJynB51fQmxMT5IKwqcJ+osns3MRJqlszk5XBq+kcMJvKpnHln3Kw15FVK34F5X9XWhNh6vVEjdQkRHPj7xI5XlEHeLPyZ+pLIcKiKCv68TiklSVg4JczG+myuxSsrKAZyTmnJIm8JN7eDh9QqpPWQOCFJ48JGakQNwAXIAEsgBSCAHIIEcgARyABLIAUggByCBHIAEcgASyAFIIAcggRyABHIAEsgBSCAHIIEcgARyABLIAUggByCBHIAEcgASyAFIIAcggRyABHIAEsgBSCAHIIEcgARyABLIAUggByCBHIAEcgASyAFIIAcggRyABHIAEsgBSJLIofx/C8r/vQBSiaT/nwZD5AAGQA5AAjkASXI5MOxIPcwMOBgiBzAAcgASU3Igs6QSJnMKQ+QABliTA8HD71jqQbNymIlCwC+Y7E0LkQMjD79jfrShgDEHILEmB4KHf7EaNpiNyAE//IgNM5iTtAI//ILtnrIjB55c/IiNXrMZOZBc/IK9hKJgP63AD+/jxAzGWCA7J8/J5YtKFiovBm9ecXIewBf1pnUyBnBa51CvjRDiHbiYwbgUweCHp+BlBnOeVuJBinEXjloo8JaDxfnBoIhE4mM2x0IDZzkUoIg0BGmhIEQONt4PBVjCEe3wTkRlUpQcKlpLGESxhe54X2i1WrgcKrqWAHvImcGQJ0c8EMUG8qe03JED+AKsBAMkkAOQQA5AAjkACeQAJJADkEAOQAI5AMn/AI2GZAKQREztAAAAAElFTkSuQmCC">
 <title>PA Delay Designer</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -28,6 +29,72 @@
   }
   .mono{font-family:'JetBrains Mono',monospace}
 
+  /* ---- LOGIN SCREEN ---- */
+  #loginScreen{
+    position:fixed;inset:0;z-index:1000;
+    background:linear-gradient(135deg,#0d1014 0%,#1a1f26 100%);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .loginBox{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:40px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .loginBox h1{font-size:24px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+  .loginBox .dot{width:12px;height:12px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+  .loginBox .sub{font-size:13px;color:var(--dim);margin-bottom:30px}
+  .loginTabs{display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid var(--line)}
+  .loginTabs button{flex:1;padding:12px;background:none;border:none;color:var(--dim);
+    cursor:pointer;font-weight:600;font-size:13px;border-bottom:2px solid transparent;transition:.2s}
+  .loginTabs button.active{color:var(--acc);border-bottom-color:var(--acc)}
+  .loginForm{display:none}
+  .loginForm.active{display:block}
+  .loginField{margin-bottom:16px}
+  .loginField label{display:block;font-size:11px;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+  .loginField input{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--txt);
+    padding:10px 12px;border-radius:8px;font-size:13px;font-family:'Archivo',sans-serif;}
+  .loginField input:focus{outline:none;border-color:var(--acc2)}
+  .loginBtn{width:100%;padding:12px;background:var(--acc);color:#1a0d00;border:none;
+    border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;transition:.2s}
+  .loginBtn:hover{filter:brightness(1.1)}
+  .loginBtn:disabled{opacity:0.5;cursor:not-allowed}
+  .loginErr{color:var(--warn);font-size:11px;margin-top:12px;display:none}
+  .loginErr.show{display:block}
+
+  /* ---- PROJECTS SCREEN ---- */
+  #projectsScreen{
+    position:fixed;inset:0;z-index:999;
+    background:var(--bg);
+    display:none;flex-direction:column;
+  }
+  #projectsScreen.active{display:flex}
+  .projectsHeader{
+    padding:20px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .projectsHeader h1{font-size:18px;font-weight:800}
+  .projectsContent{flex:1;overflow-y:auto;padding:20px}
+  .projectsList{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .projectCard{
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    padding:16px;cursor:pointer;transition:.2s;
+  }
+  .projectCard:hover{border-color:var(--acc);background:rgba(255,107,26,.08)}
+  .projectCard .name{font-weight:600;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .projectCard .date{font-size:11px;color:var(--dim);margin-bottom:10px}
+  .projectCard .actions{display:flex;gap:6px}
+  .projectCard button{flex:1;padding:6px;font-size:11px;border:1px solid var(--line);
+    background:var(--bg);color:var(--txt);border-radius:6px;cursor:pointer;transition:.15s}
+  .projectCard button:hover{border-color:var(--acc);color:var(--acc)}
+  .projectCard .del{color:var(--warn);border-color:var(--warn)}
+  .projectCard .del:hover{background:rgba(248,81,73,.1)}
+  .newProjectBtn{
+    width:100%;padding:14px;background:var(--acc);color:#1a0d00;border:none;
+    border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;margin-bottom:16px;transition:.2s;
+  }
+  .newProjectBtn:hover{filter:brightness(1.1)}
+  .noProjects{text-align:center;color:var(--dim);padding:40px 20px}
+
   header{
     display:flex;align-items:center;gap:14px;padding:10px 16px;
     background:linear-gradient(180deg,#1a212a,#12171d);
@@ -37,6 +104,7 @@
   header h1 .dot{width:9px;height:9px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc)}
   header .sub{color:var(--dim);font-size:11px;font-weight:400;letter-spacing:.3px}
   header .spacer{flex:1}
+  header .userInfo{display:flex;align-items:center;gap:12px;padding-right:8px;border-right:1px solid var(--line);margin-right:8px;font-size:12px;color:var(--dim)}
   .tbtn{
     background:var(--panel2);border:1px solid var(--line);color:var(--txt);
     padding:7px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;
@@ -49,7 +117,6 @@
   .tbtn.dir.on{background:var(--acc2);border-color:var(--acc2);color:#00222e;font-weight:700}
 
   main{flex:1;display:flex;min-height:0}
-  /* SIDEBAR */
   .side{
     width:300px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);
     display:flex;flex-direction:column;overflow-y:auto;
@@ -79,7 +146,6 @@
   .pitem .ds{font-size:10px;color:var(--dim)}
   .hint{font-size:10px;color:var(--dim);line-height:1.5;margin-top:8px}
 
-  /* STAGE */
   .stagewrap{flex:1;position:relative;overflow:hidden;background:
     radial-gradient(circle at 50% 0%,#11161c,#0b0e12);min-width:0}
   #stage{position:absolute;inset:0;touch-action:none}
@@ -98,7 +164,6 @@
     backdrop-filter:blur(6px);line-height:1.7;
   }
 
-  /* INSPECTOR */
   .insp{
     width:270px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--line);
     display:flex;flex-direction:column;overflow-y:auto;
@@ -116,13 +181,9 @@
   .tbl .sw{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:6px}
   .del{color:#f85149;cursor:pointer;font-weight:700}
 
-  /* Ukrywanie paneli bocznych — działa tak samo na komputerze i na tablecie,
-     pozwala pracować na pełnym ekranie. */
   .side,.insp{transition:width .2s ease}
   .side.collapsed,.insp.collapsed{width:0;padding-left:0;padding-right:0;border:none;overflow:hidden}
 
-  /* --- Tryb pełnoekranowy (dodano do ekranu początkowego) + notch.
-        env() = 0 na komputerze, więc desktop bez zmian. --- */
   header{
     padding-top:max(10px, env(safe-area-inset-top));
     padding-left:max(16px, env(safe-area-inset-left));
@@ -131,8 +192,6 @@
   .side{padding-left:env(safe-area-inset-left)}
   .insp{padding-right:env(safe-area-inset-right)}
 
-  /* --- Tylko urządzenia dotykowe (iPad): większe cele dotyku.
-        Nie dotyczy myszki na komputerze. --- */
   @media (pointer: coarse){
     .tbtn{padding:10px 14px;font-size:13px}
     .field input,.field select{padding:10px 11px;font-size:14px}
@@ -143,7 +202,6 @@
     .legend{font-size:11px}
   }
 
-  /* --- Motyw jasny (jasno-szary). Aktywowany klasą body.light. --- */
   body.light{
     --bg:#e9ebef; --panel:#f5f6f8; --panel2:#e4e7ec; --line:#c6ccd5;
     --txt:#1a1f26; --dim:#5d6773; --grid:#d4d9e1;
@@ -156,23 +214,86 @@
 </style>
 </head>
 <body>
-<header>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="loginBox">
+    <h1><span class="dot"></span>PA DELAY</h1>
+    <div class="sub">Logowanie do chmury projektów</div>
+
+    <div class="loginTabs">
+      <button class="active" data-tab="login">Zaloguj</button>
+      <button data-tab="register">Zarejestruj</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form class="loginForm active" id="loginForm" data-tab="login">
+      <div class="loginField">
+        <label>Email</label>
+        <input type="email" id="loginEmail" required>
+      </div>
+      <div class="loginField">
+        <label>Hasło</label>
+        <input type="password" id="loginPassword" required>
+      </div>
+      <button type="submit" class="loginBtn" id="loginSubmit">Zaloguj się</button>
+      <div class="loginErr" id="loginErr"></div>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form class="loginForm" id="registerForm" data-tab="register">
+      <div class="loginField">
+        <label>Email</label>
+        <input type="email" id="registerEmail" required>
+      </div>
+      <div class="loginField">
+        <label>Hasło (min. 6 znaków)</label>
+        <input type="password" id="registerPassword" required>
+      </div>
+      <div class="loginField">
+        <label>Powtórz hasło</label>
+        <input type="password" id="registerPassword2" required>
+      </div>
+      <button type="submit" class="loginBtn" id="registerSubmit">Zarejestruj się</button>
+      <div class="loginErr" id="registerErr"></div>
+    </form>
+  </div>
+</div>
+
+<!-- PROJECTS SCREEN -->
+<div id="projectsScreen">
+  <div class="projectsHeader">
+    <h1>Twoje projekty</h1>
+    <button class="tbtn" id="btnLogout">Wyloguj</button>
+  </div>
+  <div class="projectsContent">
+    <button class="newProjectBtn" id="btnNewProj">➕ Nowy projekt</button>
+    <div class="projectsList" id="projectsList"></div>
+    <div class="noProjects" id="noProjects">Brak projektów. Stwórz pierwszy!</div>
+  </div>
+</div>
+
+<!-- APPLICATION -->
+<header id="appHeader" style="display:none">
   <button class="tbtn" id="mLeft" title="Pokaż/ukryj panel boczny (lewy)">☰</button>
-  <h1><span class="dot"></span>PA DELAY <span class="sub">mikulskix v17</span></h1>
+  <h1><span class="dot"></span>PA DELAY <span class="sub" id="projTitle">mikulskix v17</span></h1>
+  <div class="userInfo">👤 <span id="userEmail"></span></div>
   <div class="spacer"></div>
-  <button class="tbtn" id="btnFit" title="Dopasuj widok tak, by wszystkie elementy zmieściły się wycentrowane na scenie">⤢ Wyśrodkuj</button>
+  <button class="tbtn" id="btnFit" title="Dopasuj widok">⤢ Wyśrodkuj</button>
   <button class="tbtn" id="btnNew">Nowy</button>
-  <button class="tbtn" id="btnSave">Eksportuj projekt</button>
-  <button class="tbtn" id="btnLoad">Importuj projekt</button>
-  <button class="tbtn" id="btnCsv">pobierz CSV</button>
-  <button class="tbtn pri" id="btnPdf">Eksport PDF</button>
+  <button class="tbtn" id="btnSave" title="Zapisz w chmurze">☁ Zapisz</button>
+  <button class="tbtn" id="btnExport">Eksportuj</button>
+  <button class="tbtn" id="btnLoad">Importuj</button>
+  <button class="tbtn" id="btnCsv">CSV</button>
+  <button class="tbtn pri" id="btnPdf">PDF</button>
+  <button class="tbtn" id="btnBack">← Projekty</button>
   <button class="tbtn" id="btnTheme" title="Przełącz motyw">☀︎</button>
   <button class="tbtn" id="mRight" title="Pokaż/ukryj panel boczny (prawy)">📋</button>
   <input type="file" id="fileJson" accept=".json" hidden>
+  <input type="file" id="fileBg" accept="image/*,application/pdf" hidden>
 </header>
 
-<main>
-  <!-- SIDEBAR -->
+<main id="appMain" style="display:none">
   <aside class="side" id="side">
     <div class="grp">
       <h2>Dodaj element systemu</h2>
@@ -188,24 +309,23 @@
           <select id="sr"><option>48000</option><option>96000</option><option>44100</option></select>
         </div>
       </div>
-      <div class="field"><label>Offset Haasa [ms] (dodaj do każdej linii)</label><input id="haas" type="number" value="0" step="1"></div>
+      <div class="field"><label>Offset Haasa [ms]</label><input id="haas" type="number" value="0" step="1"></div>
       <div class="calcline">Prędkość dźwięku <b id="cval">343.4 m/s</b></div>
     </div>
 
     <div class="grp">
       <h2>Skala / kalibracja</h2>
       <div class="field"><label>Metrów na 100 px</label><input id="scale" type="number" value="5" step="0.5"></div>
-      <button class="tbtn" id="btnCal" style="width:100%">📏 Kalibruj skalę dwoma punktami</button>
-      <div class="hint">Najpewniejszy sposób: kliknij na planie dwa punkty o znanej odległości (np. znany wymiar pomieszczenia), a program sam wyliczy skalę.</div>
-      <button class="tbtn" id="btnBg" style="margin-top:8px;width:100%">Wgraj podkład (JPG / PNG / PDF)</button>
+      <button class="tbtn" id="btnCal" style="width:100%">📏 Kalibruj skalę</button>
+      <div class="hint">Kliknij dwa punkty o znanej odległości, program wyliczy skalę.</div>
+      <button class="tbtn" id="btnBg" style="margin-top:8px;width:100%">Wgraj podkład</button>
       <button class="tbtn" id="btnBgClear" style="margin-top:6px;width:100%;display:none;border-color:#f85149;color:#f85149">Usuń podkład</button>
-      <input type="file" id="fileBg" accept="image/*,application/pdf" hidden>
       <div class="field" style="margin-top:10px;margin-bottom:6px">
         <label>Krycie planu <span id="bgOpVal" class="mono" style="color:var(--acc2)">80%</span></label>
         <input id="bgOp" type="range" min="0" max="100" value="80" style="width:100%">
       </div>
       <div class="field" style="margin-bottom:0">
-        <label>Przezroczystość cieni głośników <span id="coneOpVal" class="mono" style="color:var(--acc2)">80%</span></label>
+        <label>Przezroczystość cieni <span id="coneOpVal" class="mono" style="color:var(--acc2)">80%</span></label>
         <input id="coneOp" type="range" min="0" max="100" value="80" style="width:100%">
       </div>
     </div>
@@ -233,30 +353,24 @@
         <div id="toolResultSub" style="font-size:11px;color:var(--dim);margin-top:3px"></div>
         <button class="tbtn" id="btnToolClear" style="margin-top:8px;width:100%;font-size:11px">Wyczyść pomiar</button>
       </div>
-      <div id="toolHistory" style="margin-top:8px;display:none">
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:6px">Ostatnie pomiary</div>
-        <div id="toolHistoryList" style="font-size:11px;color:var(--dim);line-height:2"></div>
-      </div>
     </div>
 
     <div class="grp">
-      <h2>Orientacja projektu — front / kierunek grania</h2>
+      <h2>Orientacja projektu</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
         <button class="tbtn dir" data-dir="up">↑ Front u góry</button>
         <button class="tbtn dir" data-dir="right">→ Front z prawej</button>
         <button class="tbtn dir" data-dir="left">← Front z lewej</button>
         <button class="tbtn dir" data-dir="down">↓ Front na dole</button>
       </div>
-      <div class="hint">Ustawia domyślny kierunek grania nowych głośników i obraca te już dodane. Wybierz stronę, w którą grają głośniki względem sceny.</div>
     </div>
   </aside>
 
-  <!-- STAGE -->
   <section class="stagewrap">
     <canvas id="stage"></canvas>
     <div class="stagebar">
       <div class="pill">REF (0): <b id="refName">— brak —</b> <button id="setRefHint">?</button></div>
-      <div class="pill" id="anglePill" style="display:none">Kąt zaznacz.: <b id="angleVal">0°</b></div>
+      <div class="pill" id="anglePill" style="display:none">Kąt: <b id="angleVal">0°</b></div>
       <div class="pill" id="calPill" style="display:none;border-color:var(--acc);color:var(--acc)"><b id="calMsg">Kalibracja</b> <button id="calCancel" style="color:var(--dim)">✕</button></div>
       <div class="pill" id="toolPill" style="display:none;border-color:var(--acc2);color:var(--acc2)"><b id="toolMsg"></b> <button id="toolCancel" style="color:var(--dim)">✕</button></div>
     </div>
@@ -266,787 +380,1336 @@
     </div>
   </section>
 
-  <!-- INSPECTOR -->
   <aside class="insp" id="insp">
     <div class="bigval">
       <div class="lbl">Delay zaznaczonego elementu</div>
       <div class="v"><span id="selDelay">—</span><span class="u"> ms</span></div>
       <div class="lbl mono" id="selSamples" style="margin-top:4px;color:var(--acc2)"></div>
       <div class="lbl mono" id="selDist" style="margin-top:6px;color:var(--dim);font-size:10px"></div>
-      <div class="hint" id="negNote" style="display:none;color:var(--warn)">⚠ Delay ujemny — ten głośnik leży przed REF (jego dźwięk dotarłby wcześniej). Procesory nie robią ujemnego opóźnienia; ustaw ten głośnik jako REF (0) dwuklikiem.</div>
+      <div class="hint" id="negNote" style="display:none;color:var(--warn)">⚠ Delay ujemny</div>
       <div id="selEdit" style="display:none;margin-top:12px;text-align:left">
-        <div class="field" style="margin-bottom:8px"><label>Nazwa elementu</label><input id="selLabel" type="text"></div>
+        <div class="field" style="margin-bottom:8px"><label>Nazwa</label><input id="selLabel" type="text"></div>
         <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);margin-bottom:10px;cursor:pointer">
-          <input id="selSrc" type="checkbox" style="width:auto"> Źródło — gra razem z REF (bez opóźnienia)
+          <input id="selSrc" type="checkbox" style="width:auto"> Źródło (bez opóźnienia)
         </label>
         <div class="row2" style="margin-bottom:8px">
-          <div class="field" style="margin-bottom:0"><label>Kąt grania [°]</label><input id="selAngle" type="number" step="1" min="0" max="359"></div>
-          <div class="field" style="margin-bottom:0"><label>Szerokość pokrycia [°]</label><input id="selSpread" type="number" step="1" min="1" max="360"></div>
+          <div class="field" style="margin-bottom:0"><label>Kąt [°]</label><input id="selAngle" type="number" step="1" min="0" max="359"></div>
+          <div class="field" style="margin-bottom:0"><label>Szerokość [°]</label><input id="selSpread" type="number" step="1" min="1" max="360"></div>
         </div>
-        <button class="tbtn" id="btnSpreadGroup" style="width:100%;margin-bottom:8px;font-size:11px" title="Ustawia tę samą szerokość pokrycia we wszystkich elementach tego samego typu (np. wszystkie Delay line)">↪ Zastosuj szerokość do wszystkich w grupie „<span id="spreadGroupNm"></span>”</button>
-        <div class="field" style="margin-bottom:8px"><label>Zasięg pokrycia [m] <span style="color:var(--dim);font-weight:400">— jak daleko „niesie" ten głośnik</span></label><input id="selThrow" type="number" step="1" min="1"></div>
-        <div class="field" style="margin-bottom:0"><label>Latencja urządzenia/DSP [ms]</label><input id="selLat" type="number" step="0.1" value="0"></div>
-        <div class="hint" id="subNote" style="display:none;color:var(--warn)">⚠ Sub: delay geometryczny to tylko punkt startowy — alignment z topami rób pomiarem (faza/crossover).</div>
+        <button class="tbtn" id="btnSpreadGroup" style="width:100%;margin-bottom:8px;font-size:11px">↪ Zastosuj szerokość do grupy</button>
+        <div class="field" style="margin-bottom:8px"><label>Zasięg [m]</label><input id="selThrow" type="number" step="1" min="1"></div>
+        <div class="field" style="margin-bottom:0"><label>Latencja [ms]</label><input id="selLat" type="number" step="0.1" value="0"></div>
       </div>
-      <button class="tbtn" id="btnDel" style="margin-top:12px;width:100%;display:none;border-color:#f85149;color:#f85149">🗑 Usuń zaznaczony głośnik</button>
+      <button class="tbtn" id="btnDel" style="margin-top:12px;width:100%;display:none;border-color:#f85149;color:#f85149">🗑 Usuń</button>
     </div>
     <table class="tbl" id="tbl">
       <thead><tr><th>Element</th><th>Dist</th><th>Delay</th><th>Kąt</th><th></th></tr></thead>
       <tbody></tbody>
     </table>
-    <div class="empty" id="tblEmpty">Brak elementów. Przeciągnij głośnik z lewego panelu na scenę.</div>
+    <div class="empty" id="tblEmpty">Brak elementów</div>
   </aside>
 </main>
 
-<script>
-const $=s=>document.querySelector(s);
-const cv=$('#stage'),ctx=cv.getContext('2d');
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
-// throwM = domyślny zasięg pokrycia [m] wg typu — orientacyjny "zasięg niesienia" danego systemu;
-// użytkownik może go zmienić indywidualnie dla każdego elementu w panelu inspektora
-const TYPES={
+<script>
+// helper do pobierania elementów — musi być zdefiniowany PRZED pierwszym użyciem
+const $ = s => document.querySelector(s);
+
+// ===== FIREBASE INITIALIZATION =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAb3R0VFLngEJudLi-Z8gQrXhv-0dsd5n0",
+  authDomain: "pa-delay.firebaseapp.com",
+  projectId: "pa-delay",
+  storageBucket: "pa-delay.firebaseio.com",
+  messagingSenderId: "586737747848",
+  appId: "1:586737747848:web:32cd60d9bb95922ce45c3d"
+};
+
+let auth = null, db = null;
+let currentUser = null;
+let currentProjectId = null;
+
+// Inicjalizacja Firebase w try/catch — jeśli SDK się nie załaduje (np. brak internetu),
+// reszta interfejsu (przełączanie zakładek logowania itd.) i tak działa.
+try {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    if(user){
+      $('#userEmail').textContent = user.email;
+      $('#appHeader').style.display = 'flex';
+      $('#appMain').style.display = 'flex';
+      $('#loginScreen').style.display = 'none';
+      showProjectsScreen();
+    }else{
+      currentProjectId = null;
+      $('#appHeader').style.display = 'none';
+      $('#appMain').style.display = 'none';
+      $('#projectsScreen').classList.remove('active');
+      $('#loginScreen').style.display = 'flex';
+    }
+  });
+} catch(err) {
+  console.error('Firebase init failed:', err);
+  alert('Nie udało się połączyć z Firebase. Sprawdź internet i otwórz stronę przez https (GitHub Pages), nie przez plik lokalny.');
+}
+
+// ===== LOGIN / REGISTER =====
+document.querySelectorAll('.loginTabs button').forEach(btn => {
+  btn.onclick = () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.loginTabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.loginForm').forEach(f => f.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelector(`.loginForm[data-tab="${tab}"]`).classList.add('active');
+  };
+});
+
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault();
+  const email = $('#loginEmail').value;
+  const pwd = $('#loginPassword').value;
+  try {
+    await auth.signInWithEmailAndPassword(email, pwd);
+    $('#loginForm').reset();
+  } catch(err) {
+    $('#loginErr').textContent = 'Błąd: ' + err.message;
+    $('#loginErr').classList.add('show');
+  }
+};
+
+$('#registerForm').onsubmit = async e => {
+  e.preventDefault();
+  const email = $('#registerEmail').value;
+  const pwd = $('#registerPassword').value;
+  const pwd2 = $('#registerPassword2').value;
+
+  if(pwd !== pwd2) {
+    $('#registerErr').textContent = 'Hasła się nie zgadzają';
+    $('#registerErr').classList.add('show');
+    return;
+  }
+  if(pwd.length < 6) {
+    $('#registerErr').textContent = 'Hasło musi mieć min. 6 znaków';
+    $('#registerErr').classList.add('show');
+    return;
+  }
+
+  try {
+    await auth.createUserWithEmailAndPassword(email, pwd);
+    $('#registerForm').reset();
+  } catch(err) {
+    $('#registerErr').textContent = 'Błąd: ' + err.message;
+    $('#registerErr').classList.add('show');
+  }
+};
+
+$('#btnLogout').onclick = async () => {
+  await auth.signOut();
+  currentProjectId = null;
+  state = {els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
+  sel = null;
+};
+
+// ===== PROJECTS SCREEN =====
+async function showProjectsScreen() {
+  $('#projectsScreen').classList.add('active');
+  if(currentProjectId) {
+    currentProjectId = null;
+    state = {els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
+    sel = null;
+  }
+  loadProjectsList();
+}
+
+async function loadProjectsList() {
+  if(!currentUser) return;
+  const list = $('#projectsList');
+  list.innerHTML = '';
+
+  const snap = await db.collection('users').doc(currentUser.uid).collection('projects')
+    .orderBy('updatedAt', 'desc').limit(50).get();
+
+  if(snap.empty) {
+    $('#noProjects').style.display = 'block';
+    return;
+  }
+
+  $('#noProjects').style.display = 'none';
+  snap.forEach(doc => {
+    const proj = doc.data();
+    const date = proj.updatedAt?.toDate?.() || new Date();
+    const card = document.createElement('div');
+    card.className = 'projectCard';
+    card.innerHTML = `
+      <div class="name">📊 ${proj.name || 'Bez nazwy'}</div>
+      <div class="date">${date.toLocaleDateString('pl-PL')} ${date.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})}</div>
+      <div class="actions">
+        <button class="open">Otwórz</button>
+        <button class="del">🗑</button>
+      </div>
+    `;
+
+    card.querySelector('.open').onclick = () => openProject(doc.id, proj);
+    card.querySelector('.del').onclick = async () => {
+      if(confirm('Usunąć projekt?')) {
+        await db.collection('users').doc(currentUser.uid).collection('projects').doc(doc.id).delete();
+        loadProjectsList();
+      }
+    };
+
+    list.appendChild(card);
+  });
+}
+
+$('#btnNewProj').onclick = () => {
+  currentProjectId = null;
+  state = {els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
+  sel = null;
+  $('#projTitle').textContent = '(Nowy projekt)';
+  $('#projectsScreen').classList.remove('active');
+  resize();
+  renderTable();
+  draw();
+};
+
+async function openProject(id, proj) {
+  currentProjectId = id;
+  applyProjectData(proj.data || {els:[]});
+  $('#projTitle').textContent = proj.name || 'Projekt';
+  $('#projectsScreen').classList.remove('active');
+  resize();
+  renderTable();
+  draw();
+}
+
+$('#btnBack').onclick = showProjectsScreen;
+
+// ===== AUTO-SAVE TO CLOUD =====
+let autoSaveTimer = null;
+async function cloudSave() {
+  if(!currentUser || !currentProjectId) return;
+  try {
+    const data = buildProjectData();
+    data.name = $('#projTitle').textContent.replace('(Nowy projekt)', 'Projekt').trim();
+    data.updatedAt = new Date();
+
+    await db.collection('users').doc(currentUser.uid).collection('projects').doc(currentProjectId).set(data, {merge:true});
+  } catch(err) {
+    console.error('Cloud save error:', err);
+  }
+}
+
+function scheduleCloudSave() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    if(currentProjectId) cloudSave();
+  }, 1000);
+}
+
+$('#btnSave').onclick = async () => {
+  if(!currentProjectId) {
+    // Nowy projekt - pokaż dialog do zapisania
+    const name = prompt('Nazwa projektu:', 'Mój projekt');
+    if(!name) return;
+
+    const docRef = await db.collection('users').doc(currentUser.uid).collection('projects').add({
+      name,
+      ...buildProjectData(),
+      updatedAt: new Date(),
+      createdAt: new Date()
+    });
+    currentProjectId = docRef.id;
+    $('#projTitle').textContent = name;
+    alert('✅ Projekt zapisany w chmurze!');
+  } else {
+    await cloudSave();
+    alert('✅ Projekt zaktualizowany!');
+  }
+};
+
+// ===== ORIGINAL PA DELAY APP =====
+const cv = $('#stage'), ctx = cv.getContext('2d');
+
+const TYPES = {
   main:{nm:'Main / PA',ds:'system główny',col:'#ff6b1a',throwM:35},
   delay:{nm:'Delay line',ds:'linia opóźniająca',col:'#19c3ff',throwM:30},
   sub:{nm:'Subwoofer',ds:'niskie pasmo',col:'#a371f7',throwM:20},
   fill:{nm:'Front-fill',ds:'dogłośnienie',col:'#3fb950',throwM:12},
 };
 
-let state={els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
-let sel=null, view={zoom:1,ox:0,oy:0};
-// domyślny kierunek grania nowych głośników (kąt w rad; 0 = w prawo)
-const DIR_ANGLE={right:0, down:Math.PI/2, left:Math.PI, up:-Math.PI/2};
-let frontDir='right';
-// przezroczystość "cieni" (stożków pokrycia) głośników — domyślnie zmniejszona o 20% względem pierwotnej (czyli 0.8)
-let coneOpacity=0.8;
-// kalibracja skali: tryb i punkty (we współrzędnych świata)
-let calMode=false, calPts=[];
+let state = {els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
+let sel = null, view = {zoom:1,ox:0,oy:0};
+const DIR_ANGLE = {right:0, down:Math.PI/2, left:Math.PI, up:-Math.PI/2};
+let frontDir = 'right';
+let coneOpacity = 0.8;
+let calMode = false, calPts = [];
+let toolMode = null, toolPts = [], toolMouse = null;
+const toolHistory = [];
 
-// palette
-const pal=$('#palette');
-Object.entries(TYPES).forEach(([k,t])=>{
-  const d=document.createElement('div');d.className='pitem';d.draggable=true;d.dataset.type=k;
-  d.innerHTML=`<span class="sw" style="background:${t.col}"></span><div><div class="nm">${t.nm}</div><div class="ds">${t.ds}</div></div>`;
-  d.addEventListener('dragstart',e=>e.dataTransfer.setData('type',k));
-  // touch fallback: tap to add at center
-  d.addEventListener('click',()=>addEl(k,cv.width/2/devicePixelRatio,cv.height/2/devicePixelRatio));
+const pal = $('#palette');
+Object.entries(TYPES).forEach(([k,t]) => {
+  const d = document.createElement('div');
+  d.className = 'pitem';
+  d.draggable = true;
+  d.dataset.type = k;
+  d.innerHTML = `<span class="sw" style="background:${t.col}"></span><div><div class="nm">${t.nm}</div><div class="ds">${t.ds}</div></div>`;
+  d.addEventListener('dragstart', e => e.dataTransfer.setData('type', k));
+  d.addEventListener('click', () => addEl(k, cv.width/2/devicePixelRatio, cv.height/2/devicePixelRatio));
   pal.appendChild(d);
 });
 
-function speedOfSound(){return 331.3+0.606*parseFloat($('#temp').value||20);}
-function metersPerPx(){return parseFloat($('#scale').value||5)/100;}
+function speedOfSound() { return 331.3 + 0.606 * parseFloat($('#temp').value || 20); }
+function metersPerPx() { return parseFloat($('#scale').value || 5) / 100; }
 
-function resize(){
-  const r=cv.parentElement.getBoundingClientRect();
-  const dpr=window.devicePixelRatio||1;
-  cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+function resize() {
+  const r = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = r.width * dpr;
+  cv.height = r.height * dpr;
+  cv.style.width = r.width + 'px';
+  cv.style.height = r.height + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   draw();
 }
-window.addEventListener('resize',resize);
+window.addEventListener('resize', resize);
 
-function addEl(type,x,y){
-  const id=Date.now()+Math.random();
-  const label=TYPES[type].nm.split(' ')[0]+' '+(state.els.filter(e=>e.type===type).length+1);
-  const el={id,type,x,y,angle:DIR_ANGLE[frontDir],spread:70*Math.PI/180,throwM:TYPES[type].throwM,label,lat:0,src:(type==='main')};
+function addEl(type, x, y) {
+  const id = Date.now() + Math.random();
+  const label = TYPES[type].nm.split(' ')[0] + ' ' + (state.els.filter(e => e.type === type).length + 1);
+  const el = {id, type, x, y, angle: DIR_ANGLE[frontDir], spread: 70*Math.PI/180, throwM: TYPES[type].throwM, label, lat: 0, src: (type==='main')};
   state.els.push(el);
-  if(type==='main' && state.refId===null){state.refId=id;}
-  if(state.refId===null) state.refId=id;
-  sel=el;draw();renderTable();scheduleAutosave();
+  if(type === 'main' && state.refId === null) state.refId = id;
+  if(state.refId === null) state.refId = id;
+  sel = el;
+  draw();
+  renderTable();
+  scheduleCloudSave();
 }
 
-// drag-drop from palette
-cv.addEventListener('dragover',e=>e.preventDefault());
-cv.addEventListener('drop',e=>{
-  e.preventDefault();const t=e.dataTransfer.getData('type');if(!t)return;
-  const r=cv.getBoundingClientRect();
-  addEl(t,(e.clientX-r.left-view.ox)/view.zoom,(e.clientY-r.top-view.oy)/view.zoom);
+cv.addEventListener('dragover', e => e.preventDefault());
+cv.addEventListener('drop', e => {
+  e.preventDefault();
+  const t = e.dataTransfer.getData('type');
+  if(!t) return;
+  const r = cv.getBoundingClientRect();
+  addEl(t, (e.clientX - r.left - view.ox) / view.zoom, (e.clientY - r.top - view.oy) / view.zoom);
 });
 
-// distance & delay
-function distM(a,b){const dx=a.x-b.x,dy=a.y-b.y;return Math.hypot(dx,dy)*metersPerPx();} // odległość w linii prostej
-function isSource(el){return el.src===true;} // źródło = gra razem z REF, bez opóźnienia
-function delayMs(el){
-  if(!state.refId)return 0;
-  const r=state.els.find(e=>e.id===state.refId);if(!r||el.id===r.id)return 0;
-  if(isSource(el))return 0; // źródła nie są opóźniane względem REF
-  const d=distM(el,r); // odległość w linii prostej od Main 1 (REF)
-  const latDiff=(r.lat||0)-(el.lat||0); // korekta różnicy latencji urządzeń
-  return d/speedOfSound()*1000 + parseFloat($('#haas').value||0) + latDiff;
+function distM(a, b) {
+  const dx = a.x - b.x, dy = a.y - b.y;
+  return Math.hypot(dx, dy) * metersPerPx();
+}
+function isSource(el) { return el.src === true; }
+function delayMs(el) {
+  if(!state.refId) return 0;
+  const r = state.els.find(e => e.id === state.refId);
+  if(!r || el.id === r.id) return 0;
+  if(isSource(el)) return 0;
+  const d = distM(el, r);
+  const latDiff = (r.lat || 0) - (el.lat || 0);
+  return d / speedOfSound() * 1000 + parseFloat($('#haas').value || 0) + latDiff;
 }
 
-// ---- interaction ----
-let drag=null;
-function hit(mx,my){
-  for(let i=state.els.length-1;i>=0;i--){
-    const e=state.els[i];const sx=e.x*view.zoom+view.ox,sy=e.y*view.zoom+view.oy;
-    const d=Math.hypot(mx-sx,my-sy);
-    if(Math.abs(d-26)<9) return {el:e,mode:'rot'};
-    if(d<22) return {el:e,mode:'move'};
+let drag = null;
+function hit(mx, my) {
+  for(let i = state.els.length - 1; i >= 0; i--) {
+    const e = state.els[i];
+    const sx = e.x * view.zoom + view.ox, sy = e.y * view.zoom + view.oy;
+    const d = Math.hypot(mx - sx, my - sy);
+    if(Math.abs(d - 26) < 9) return {el: e, mode: 'rot'};
+    if(d < 22) return {el: e, mode: 'move'};
   }
   return null;
 }
-function getXY(e){const r=cv.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};}
-function calClick(x,y){
-  // x,y w pikselach ekranu → współrzędne świata
-  const wx=(x-view.ox)/view.zoom, wy=(y-view.oy)/view.zoom;
-  calPts.push({x:wx,y:wy});
-  if(calPts.length===1){$('#calMsg').textContent='Kliknij drugi punkt';draw();return;}
-  // mamy dwa punkty — zapytaj o rzeczywistą odległość
-  const px=Math.hypot(calPts[0].x-calPts[1].x, calPts[0].y-calPts[1].y); // dystans w px (świat = px przy zoom 1)
-  draw();
-  const ans=prompt('Rzeczywista odległość między klikniętymi punktami [metry]:','10');
-  const meters=parseFloat((ans||'').replace(',','.'));
-  if(meters>0 && px>0){
-    const mppx=meters/px;          // metrów na 1 px
-    $('#scale').value=(mppx*100).toFixed(3); // metrów na 100 px
-  }
-  endCal();renderTable();
+function getXY(e) {
+  const r = cv.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return {x: t.clientX - r.left, y: t.clientY - r.top};
 }
-function endCal(){calMode=false;calPts=[];$('#calPill').style.display='none';$('#btnCal').classList.remove('pri');cv.style.cursor='';draw();}
-function down(e){
-  const{x,y}=getXY(e);
-  if(calMode){calClick(x,y);return;}
-  if(toolMode){toolClick((x-view.ox)/view.zoom,(y-view.oy)/view.zoom);return;}
-  const h=hit(x,y);
-  if(h){sel=h.el;drag={mode:h.mode,el:h.el};draw();renderTable();}
-  else{sel=null;drag={mode:'pan',sx:x-view.ox,sy:y-view.oy};draw();renderTable();}
-}
-function move(e){
-  if(!drag)return;e.preventDefault();const{x,y}=getXY(e);
-  if(drag.mode==='move'){drag.el.x=(x-view.ox)/view.zoom;drag.el.y=(y-view.oy)/view.zoom;}
-  else if(drag.mode==='rot'){const sx=drag.el.x*view.zoom+view.ox,sy=drag.el.y*view.zoom+view.oy;drag.el.angle=Math.atan2(y-sy,x-sx);}
-  else if(drag.mode==='pan'){view.ox=x-drag.sx;view.oy=y-drag.sy;}
-  draw();if(drag.mode!=='pan')renderTable();
-}
-function up(){if(drag&&drag.mode!=='pan')scheduleAutosave();drag=null;}
-cv.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
-// touch: najpierw wykryj podwójny tap (ustaw REF), potem zwykła interakcja
-let lastTap=0,lastTapXY=null;
-// pinch-to-zoom dwoma palcami (iPad/Safari)
-let pinch=null;
-function touchDist(t){return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);}
-function touchMid(t){const r=cv.getBoundingClientRect();return{x:(t[0].clientX+t[1].clientX)/2-r.left,y:(t[0].clientY+t[1].clientY)/2-r.top};}
-cv.addEventListener('touchstart',e=>{
-  if(e.touches.length===2){
-    e.preventDefault();
-    drag=null;
-    pinch={dist:touchDist(e.touches),mid:touchMid(e.touches),zoom:view.zoom,ox:view.ox,oy:view.oy};
+
+function calClick(x, y) {
+  const wx = (x - view.ox) / view.zoom, wy = (y - view.oy) / view.zoom;
+  calPts.push({x: wx, y: wy});
+  if(calPts.length === 1) {
+    $('#calMsg').textContent = 'Kliknij drugi punkt';
+    draw();
     return;
   }
-  if(calMode){e.preventDefault();const{x,y}=getXY(e);calClick(x,y);return;}
-  if(toolMode){e.preventDefault();const{x,y}=getXY(e);toolClick((x-view.ox)/view.zoom,(y-view.oy)/view.zoom);return;}
-  const now=Date.now();const{x,y}=getXY(e);
-  if(now-lastTap<300 && lastTapXY && Math.hypot(x-lastTapXY.x,y-lastTapXY.y)<30){
-    e.preventDefault(); // blokuje double-tap zoom tylko na płótnie
-    const h=hit(x,y);if(h){state.refId=h.el.id;sel=h.el;draw();renderTable();}
-    lastTap=0;lastTapXY=null;drag=null;return;
+  const px = Math.hypot(calPts[0].x - calPts[1].x, calPts[0].y - calPts[1].y);
+  draw();
+  const ans = prompt('Rzeczywista odległość [metry]:', '10');
+  const meters = parseFloat((ans || '').replace(',', '.'));
+  if(meters > 0 && px > 0) {
+    const mppx = meters / px;
+    $('#scale').value = (mppx * 100).toFixed(3);
   }
-  lastTap=now;lastTapXY={x,y};
-  down(e);
-},{passive:false});
-cv.addEventListener('touchmove',e=>{
-  if(pinch && e.touches.length===2){
+  endCal();
+  renderTable();
+}
+function endCal() {
+  calMode = false;
+  calPts = [];
+  $('#calPill').style.display = 'none';
+  $('#btnCal').classList.remove('pri');
+  cv.style.cursor = '';
+  draw();
+}
+
+function down(e) {
+  const {x, y} = getXY(e);
+  if(calMode) { calClick(x, y); return; }
+  if(toolMode) { toolClick((x - view.ox) / view.zoom, (y - view.oy) / view.zoom); return; }
+  const h = hit(x, y);
+  if(h) {
+    sel = h.el;
+    drag = {mode: h.mode, el: h.el};
+    draw();
+    renderTable();
+  } else {
+    sel = null;
+    drag = {mode: 'pan', sx: x - view.ox, sy: y - view.oy};
+    draw();
+    renderTable();
+  }
+}
+function move(e) {
+  if(!drag) return;
+  e.preventDefault();
+  const {x, y} = getXY(e);
+  if(drag.mode === 'move') {
+    drag.el.x = (x - view.ox) / view.zoom;
+    drag.el.y = (y - view.oy) / view.zoom;
+  } else if(drag.mode === 'rot') {
+    const sx = drag.el.x * view.zoom + view.ox, sy = drag.el.y * view.zoom + view.oy;
+    drag.el.angle = Math.atan2(y - sy, x - sx);
+  } else if(drag.mode === 'pan') {
+    view.ox = x - drag.sx;
+    view.oy = y - drag.sy;
+  }
+  draw();
+  if(drag.mode !== 'pan') renderTable();
+}
+function up() {
+  if(drag && drag.mode !== 'pan') scheduleCloudSave();
+  drag = null;
+}
+
+cv.addEventListener('mousedown', down);
+window.addEventListener('mousemove', move);
+window.addEventListener('mouseup', up);
+
+let lastTap = 0, lastTapXY = null, pinch = null;
+function touchDist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+function touchMid(t) {
+  const r = cv.getBoundingClientRect();
+  return {x: (t[0].clientX + t[1].clientX) / 2 - r.left, y: (t[0].clientY + t[1].clientY) / 2 - r.top};
+}
+
+cv.addEventListener('touchstart', e => {
+  if(e.touches.length === 2) {
     e.preventDefault();
-    const f=touchDist(e.touches)/pinch.dist;
-    const newZoom=pinch.zoom*f;
-    view.ox=pinch.mid.x-(pinch.mid.x-pinch.ox)*f;
-    view.oy=pinch.mid.y-(pinch.mid.y-pinch.oy)*f;
-    view.zoom=newZoom;
+    drag = null;
+    pinch = {dist: touchDist(e.touches), mid: touchMid(e.touches), zoom: view.zoom, ox: view.ox, oy: view.oy};
+    return;
+  }
+  if(calMode) { e.preventDefault(); const {x, y} = getXY(e); calClick(x, y); return; }
+  if(toolMode) { e.preventDefault(); const {x, y} = getXY(e); toolClick((x - view.ox) / view.zoom, (y - view.oy) / view.zoom); return; }
+  const now = Date.now();
+  const {x, y} = getXY(e);
+  if(now - lastTap < 300 && lastTapXY && Math.hypot(x - lastTapXY.x, y - lastTapXY.y) < 30) {
+    e.preventDefault();
+    const h = hit(x, y);
+    if(h) { state.refId = h.el.id; sel = h.el; draw(); renderTable(); }
+    lastTap = 0;
+    lastTapXY = null;
+    drag = null;
+    return;
+  }
+  lastTap = now;
+  lastTapXY = {x, y};
+  down(e);
+}, {passive: false});
+
+cv.addEventListener('touchmove', e => {
+  if(pinch && e.touches.length === 2) {
+    e.preventDefault();
+    const f = touchDist(e.touches) / pinch.dist;
+    const newZoom = pinch.zoom * f;
+    view.ox = pinch.mid.x - (pinch.mid.x - pinch.ox) * f;
+    view.oy = pinch.mid.y - (pinch.mid.y - pinch.oy) * f;
+    view.zoom = newZoom;
     syncZoomSlider();
     draw();
     return;
   }
   move(e);
-},{passive:false});
-cv.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null;up();});
-cv.addEventListener('dblclick',e=>{const{x,y}=getXY(e);const h=hit(x,y);if(h){state.refId=h.el.id;draw();renderTable();}});
-cv.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.1:0.9;const{x,y}=getXY(e);
-  view.ox=x-(x-view.ox)*f;view.oy=y-(y-view.oy)*f;view.zoom*=f;syncZoomSlider();draw();},{passive:false});
+}, {passive: false});
 
-// ---- suwak zoom ----
-function syncZoomSlider(){
-  const pct=Math.round(view.zoom*100);
-  $('#zoomSlider').value=Math.max(5,Math.min(400,pct));
-  $('#zoomVal').textContent=pct+'%';
-}
-function applyZoom(newZoom){
-  const W=cv.clientWidth,H=cv.clientHeight;
-  const cx=W/2,cy=H/2;
-  view.ox=cx-(cx-view.ox)*(newZoom/view.zoom);
-  view.oy=cy-(cy-view.oy)*(newZoom/view.zoom);
-  view.zoom=newZoom;
-  syncZoomSlider();draw();
-}
-$('#zoomSlider').addEventListener('input',()=>applyZoom(parseInt($('#zoomSlider').value)/100));
-$('#btnZoomIn').onclick=()=>applyZoom(Math.min(4,view.zoom*1.25));
-$('#btnZoomOut').onclick=()=>applyZoom(Math.max(0.05,view.zoom/1.25));
-$('#btnZoomReset').onclick=()=>applyZoom(1);
+cv.addEventListener('touchend', e => { if(e.touches.length < 2) pinch = null; up(); });
+cv.addEventListener('dblclick', e => {
+  const {x, y} = getXY(e);
+  const h = hit(x, y);
+  if(h) { state.refId = h.el.id; draw(); renderTable(); }
+});
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  const f = e.deltaY < 0 ? 1.1 : 0.9;
+  const {x, y} = getXY(e);
+  view.ox = x - (x - view.ox) * f;
+  view.oy = y - (y - view.oy) * f;
+  view.zoom *= f;
+  syncZoomSlider();
+  draw();
+}, {passive: false});
 
-// ---- draw ----
-function theme(){
-  const l=document.body.classList.contains('light');
+function syncZoomSlider() {
+  const pct = Math.round(view.zoom * 100);
+  $('#zoomSlider').value = Math.max(5, Math.min(400, pct));
+  $('#zoomVal').textContent = pct + '%';
+}
+function applyZoom(newZoom) {
+  const W = cv.clientWidth, H = cv.clientHeight;
+  const cx = W / 2, cy = H / 2;
+  view.ox = cx - (cx - view.ox) * (newZoom / view.zoom);
+  view.oy = cy - (cy - view.oy) * (newZoom / view.zoom);
+  view.zoom = newZoom;
+  syncZoomSlider();
+  draw();
+}
+
+$('#zoomSlider').addEventListener('input', () => applyZoom(parseInt($('#zoomSlider').value) / 100));
+$('#btnZoomIn').onclick = () => applyZoom(Math.min(4, view.zoom * 1.25));
+$('#btnZoomOut').onclick = () => applyZoom(Math.max(0.05, view.zoom / 1.25));
+$('#btnZoomReset').onclick = () => applyZoom(1);
+
+function theme() {
+  const l = document.body.classList.contains('light');
   return l
-    ? {grid:'#d4d9e1',line:'rgba(90,101,115,.55)',labelBg:'rgba(255,255,255,.92)',labelTxt:'#1a1f26',refFill:'#1a1f26'}
-    : {grid:'#1e262f',line:'rgba(139,152,166,.4)',labelBg:'rgba(13,16,20,.9)',labelTxt:'#e6edf3',refFill:'#ffffff'};
+    ? {grid:'#d4d9e1', line:'rgba(90,101,115,.55)', labelBg:'rgba(255,255,255,.92)', labelTxt:'#1a1f26', refFill:'#1a1f26'}
+    : {grid:'#1e262f', line:'rgba(139,152,166,.4)', labelBg:'rgba(13,16,20,.9)', labelTxt:'#e6edf3', refFill:'#ffffff'};
 }
-function draw(){
-  const W=cv.clientWidth,H=cv.clientHeight;const TH=theme();
-  ctx.clearRect(0,0,W,H);
-  // bg image (krycie z suwaka)
-  if(state.bgImg){const op=parseInt($('#bgOp').value||80)/100;ctx.globalAlpha=op;ctx.drawImage(state.bgImg,view.ox,view.oy,state.bgImg.width*view.zoom,state.bgImg.height*view.zoom);ctx.globalAlpha=1;}
-  // grid
-  ctx.strokeStyle=TH.grid;ctx.lineWidth=1;const step=100*view.zoom;
-  for(let x=view.ox%step;x<W;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-  for(let y=view.oy%step;y<H;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-  const ref=state.els.find(e=>e.id===state.refId);
-  // lines to ref
-  if(ref){state.els.forEach(e=>{if(e.id===ref.id)return;
-    ctx.strokeStyle=TH.line;ctx.lineWidth=2.5;ctx.setLineDash([6,5]);ctx.beginPath();
-    ctx.moveTo(ref.x*view.zoom+view.ox,ref.y*view.zoom+view.oy);ctx.lineTo(e.x*view.zoom+view.ox,e.y*view.zoom+view.oy);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=1;
-  });}
-  // elements
-  state.els.forEach(e=>drawEl(e,e.id===state.refId,e===sel));
-  // narzędzia pomiarowe (na wierzchu elementów)
-  drawTools();
-  // punkty kalibracji
-  if(calMode && calPts.length){
-    ctx.strokeStyle=getCSS('--acc');ctx.fillStyle=getCSS('--acc');ctx.lineWidth=2;
-    const sp=calPts.map(p=>({x:p.x*view.zoom+view.ox,y:p.y*view.zoom+view.oy}));
-    if(sp.length===2){ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(sp[0].x,sp[0].y);ctx.lineTo(sp[1].x,sp[1].y);ctx.stroke();ctx.setLineDash([]);}
-    sp.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,5,0,7);ctx.fill();
-      ctx.beginPath();ctx.moveTo(p.x-9,p.y);ctx.lineTo(p.x+9,p.y);ctx.moveTo(p.x,p.y-9);ctx.lineTo(p.x,p.y+9);ctx.stroke();});
-  }
-  $('#refName').textContent=ref?ref.label:'— brak —';
-  if(sel){$('#anglePill').style.display='';$('#angleVal').textContent=Math.round((sel.angle*180/Math.PI+90+360)%360)+'°';}
-  else $('#anglePill').style.display='none';
-}
-function getCSS(v){return getComputedStyle(document.body).getPropertyValue(v).trim()||'#ff6b1a';}
-function drawEl(e,isRef,isSel){
-  const x=e.x*view.zoom+view.ox,y=e.y*view.zoom+view.oy;const c=TYPES[e.type].col;
-  // coverage cone — długość odzwierciedla realny zasięg [m] przeliczony na px wg skali i zoomu
-  // (dzięki temu cień skaluje się razem z planem przy przybliżaniu/oddalaniu, zamiast mieć stały rozmiar w pikselach)
-  const half=(e.spread||70*Math.PI/180)/2;
-  const throwM=e.throwM||TYPES[e.type].throwM||25;
-  const len=throwM/metersPerPx()*view.zoom;
-  ctx.save();ctx.translate(x,y);ctx.rotate(e.angle);
-  ctx.globalAlpha=coneOpacity; // suwak "Przezroczystość cieni głośników" — globalny mnożnik widoczności stożka
-  const grad=ctx.createRadialGradient(0,0,0,0,0,len);
-  grad.addColorStop(0,c+'80');grad.addColorStop(.6,c+'40');grad.addColorStop(1,c+'00');
-  ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,len,-half,half);ctx.closePath();ctx.fill();
-  ctx.strokeStyle=c+'90';ctx.lineWidth=1.5;ctx.beginPath();
-  ctx.moveTo(0,0);ctx.lineTo(Math.cos(-half)*len,Math.sin(-half)*len);
-  ctx.moveTo(0,0);ctx.lineTo(Math.cos(half)*len,Math.sin(half)*len);
-  ctx.stroke();
-  ctx.globalAlpha=1;
-  ctx.restore();
-  // rotation handle ring
-  if(isSel){ctx.strokeStyle=c;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(x,y,26,0,7);ctx.stroke();ctx.setLineDash([]);
-    const hx=x+Math.cos(e.angle)*26,hy=y+Math.sin(e.angle)*26;ctx.fillStyle=c;ctx.beginPath();ctx.arc(hx,hy,5,0,7);ctx.fill();}
-  // body
-  const TH=theme();
-  ctx.fillStyle=isRef?TH.refFill:c;ctx.strokeStyle=c;ctx.lineWidth=isRef?3:2;
-  ctx.beginPath();ctx.arc(x,y,14,0,7);ctx.fill();if(isRef)ctx.stroke();
-  ctx.fillStyle=isRef?c:TH.labelTxt;ctx.font='700 11px JetBrains Mono';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(isRef?'0':'',x,y);
-  // label box
-  const dm=delayMs(e),dist=isRef?0:distM(e,ref());
-  let txt;
-  if(isRef) txt=e.label+' · REF';
-  else if(isSource(e)) txt=`${e.label}  ${dist.toFixed(1)}m  źródło`;
-  else txt=`${e.label}  ${dist.toFixed(1)}m  ${dm.toFixed(1)}ms`;
-  ctx.font='600 11px Archivo';const w=ctx.measureText(txt).width+14;
-  ctx.fillStyle=TH.labelBg;ctx.strokeStyle=isSel?c:TH.grid;
-  roundRect(x+18,y-10,w,20,5);ctx.fill();ctx.stroke();
-  ctx.fillStyle=TH.labelTxt;ctx.textAlign='left';ctx.fillText(txt,x+25,y);
-}
-function ref(){return state.els.find(e=>e.id===state.refId);}
-function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 
-// ---- table & inspector ----
-function renderTableRows(){
-  const tb=$('#tbl tbody');tb.innerHTML='';
-  $('#tblEmpty').style.display=state.els.length?'none':'block';
-  $('#tbl').style.display=state.els.length?'table':'none';
-  state.els.forEach(e=>{
-    const isRef=e.id===state.refId;const dm=delayMs(e);const dist=isRef?0:distM(e,ref());
-    const dCol=isRef?'REF':(isSource(e)?'źródło':dm.toFixed(1)+'ms');
-    const tr=document.createElement('tr');if(e===sel)tr.className='sel';
-    tr.innerHTML=`<td><span class="sw" style="background:${TYPES[e.type].col}"></span>${e.label}${isRef?' (0)':''}</td>
+function draw() {
+  const W = cv.clientWidth, H = cv.clientHeight;
+  const TH = theme();
+  ctx.clearRect(0, 0, W, H);
+
+  if(state.bgImg) {
+    const op = parseInt($('#bgOp').value || 80) / 100;
+    ctx.globalAlpha = op;
+    ctx.drawImage(state.bgImg, view.ox, view.oy, state.bgImg.width * view.zoom, state.bgImg.height * view.zoom);
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.strokeStyle = TH.grid;
+  ctx.lineWidth = 1;
+  const step = 100 * view.zoom;
+  for(let x = view.ox % step; x < W; x += step) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+  }
+  for(let y = view.oy % step; y < H; y += step) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+
+  const ref = state.els.find(e => e.id === state.refId);
+  if(ref) {
+    state.els.forEach(e => {
+      if(e.id === ref.id) return;
+      ctx.strokeStyle = TH.line;
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(ref.x * view.zoom + view.ox, ref.y * view.zoom + view.oy);
+      ctx.lineTo(e.x * view.zoom + view.ox, e.y * view.zoom + view.oy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.lineWidth = 1;
+    });
+  }
+
+  state.els.forEach(e => drawEl(e, e.id === state.refId, e === sel));
+  drawTools();
+
+  if(calMode && calPts.length) {
+    ctx.strokeStyle = getCSS('--acc');
+    ctx.fillStyle = getCSS('--acc');
+    ctx.lineWidth = 2;
+    const sp = calPts.map(p => ({x: p.x * view.zoom + view.ox, y: p.y * view.zoom + view.oy}));
+    if(sp.length === 2) {
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.moveTo(sp[0].x, sp[0].y);
+      ctx.lineTo(sp[1].x, sp[1].y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    sp.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 5, 0, 7);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(p.x - 9, p.y);
+      ctx.lineTo(p.x + 9, p.y);
+      ctx.moveTo(p.x, p.y - 9);
+      ctx.lineTo(p.x, p.y + 9);
+      ctx.stroke();
+    });
+  }
+
+  $('#refName').textContent = ref ? ref.label : '— brak —';
+  if(sel) {
+    $('#anglePill').style.display = '';
+    $('#angleVal').textContent = Math.round((sel.angle * 180 / Math.PI + 90 + 360) % 360) + '°';
+  } else {
+    $('#anglePill').style.display = 'none';
+  }
+}
+
+function getCSS(v) {
+  return getComputedStyle(document.body).getPropertyValue(v).trim() || '#ff6b1a';
+}
+
+function drawEl(e, isRef, isSel) {
+  const x = e.x * view.zoom + view.ox, y = e.y * view.zoom + view.oy;
+  const c = TYPES[e.type].col;
+  const half = (e.spread || 70 * Math.PI / 180) / 2;
+  const throwM = e.throwM || TYPES[e.type].throwM || 25;
+  const len = throwM / metersPerPx() * view.zoom;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(e.angle);
+  ctx.globalAlpha = coneOpacity;
+  const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, len);
+  grad.addColorStop(0, c + '80');
+  grad.addColorStop(.6, c + '40');
+  grad.addColorStop(1, c + '00');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.arc(0, 0, len, -half, half);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = c + '90';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(Math.cos(-half) * len, Math.sin(-half) * len);
+  ctx.moveTo(0, 0);
+  ctx.lineTo(Math.cos(half) * len, Math.sin(half) * len);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  if(isSel) {
+    ctx.strokeStyle = c;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.arc(x, y, 26, 0, 7);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    const hx = x + Math.cos(e.angle) * 26, hy = y + Math.sin(e.angle) * 26;
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.arc(hx, hy, 5, 0, 7);
+    ctx.fill();
+  }
+
+  const TH = theme();
+  ctx.fillStyle = isRef ? TH.refFill : c;
+  ctx.strokeStyle = c;
+  ctx.lineWidth = isRef ? 3 : 2;
+  ctx.beginPath();
+  ctx.arc(x, y, 14, 0, 7);
+  ctx.fill();
+  if(isRef) ctx.stroke();
+  ctx.fillStyle = isRef ? c : TH.labelTxt;
+  ctx.font = '700 11px JetBrains Mono';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(isRef ? '0' : '', x, y);
+
+  const dm = delayMs(e), dist = isRef ? 0 : distM(e, ref());
+  let txt;
+  if(isRef) txt = e.label + ' · REF';
+  else if(isSource(e)) txt = `${e.label}  ${dist.toFixed(1)}m  źródło`;
+  else txt = `${e.label}  ${dist.toFixed(1)}m  ${dm.toFixed(1)}ms`;
+
+  ctx.font = '600 11px Archivo';
+  const w = ctx.measureText(txt).width + 14;
+  ctx.fillStyle = TH.labelBg;
+  ctx.strokeStyle = isSel ? c : TH.grid;
+  roundRect(x + 18, y - 10, w, 20, 5);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = TH.labelTxt;
+  ctx.textAlign = 'left';
+  ctx.fillText(txt, x + 25, y);
+}
+
+function ref() { return state.els.find(e => e.id === state.refId); }
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function renderTableRows() {
+  const tb = $('#tbl tbody');
+  tb.innerHTML = '';
+  $('#tblEmpty').style.display = state.els.length ? 'none' : 'block';
+  $('#tbl').style.display = state.els.length ? 'table' : 'none';
+
+  state.els.forEach(e => {
+    const isRef = e.id === state.refId;
+    const dm = delayMs(e);
+    const dist = isRef ? 0 : distM(e, ref());
+    const dCol = isRef ? 'REF' : (isSource(e) ? 'źródło' : dm.toFixed(1) + 'ms');
+    const tr = document.createElement('tr');
+    if(e === sel) tr.className = 'sel';
+    tr.innerHTML = `<td><span class="sw" style="background:${TYPES[e.type].col}"></span>${e.label}${isRef?' (0)':''}</td>
       <td>${dist.toFixed(1)}m</td><td>${dCol}</td>
-      <td>${Math.round((e.angle*180/Math.PI+90+360)%360)}°</td>
+      <td>${Math.round((e.angle * 180 / Math.PI + 90 + 360) % 360)}°</td>
       <td><span class="del" data-id="${e.id}">✕</span></td>`;
-    tr.querySelector('td').onclick=()=>{sel=e;draw();renderTable();};
-    tr.querySelector('.del').onclick=()=>deleteEl(e);
+    tr.querySelector('td').onclick = () => { sel = e; draw(); renderTable(); };
+    tr.querySelector('.del').onclick = () => deleteEl(e);
     tb.appendChild(tr);
   });
-  if(sel&&sel.id!==state.refId){const dm=delayMs(sel);
-    if(isSource(sel)){$('#selDelay').textContent='0';$('#selSamples').textContent='źródło — gra razem z REF';}
-    else{$('#selDelay').textContent=dm.toFixed(2);$('#selSamples').textContent=Math.round(dm/1000*parseFloat($('#sr').value))+' próbek @ '+($('#sr').value/1000)+'kHz';}
-    $('#selDist').textContent='odległość od REF: '+distM(sel,ref()).toFixed(2)+' m (w linii prostej)';
-    $('#negNote').style.display=(!isSource(sel)&&dm<0)?'block':'none';}
-  else{$('#selDelay').textContent='—';$('#selSamples').textContent=sel?'punkt referencyjny':'';$('#selDist').textContent='';$('#negNote').style.display='none';}
-  $('#cval').textContent=speedOfSound().toFixed(1)+' m/s';
-  $('#btnDel').style.display=sel?'inline-flex':'none';
-  $('#selEdit').style.display=sel?'block':'none';
-  $('#subNote').style.display=(sel&&sel.type==='sub')?'block':'none';
+
+  if(sel && sel.id !== state.refId) {
+    const dm = delayMs(sel);
+    if(isSource(sel)) {
+      $('#selDelay').textContent = '0';
+      $('#selSamples').textContent = 'źródło — gra razem z REF';
+    } else {
+      $('#selDelay').textContent = dm.toFixed(2);
+      $('#selSamples').textContent = Math.round(dm / 1000 * parseFloat($('#sr').value)) + ' próbek @ ' + ($('#sr').value / 1000) + 'kHz';
+    }
+    $('#selDist').textContent = 'odległość: ' + distM(sel, ref()).toFixed(2) + ' m';
+    $('#negNote').style.display = (!isSource(sel) && dm < 0) ? 'block' : 'none';
+  } else {
+    $('#selDelay').textContent = '—';
+    $('#selSamples').textContent = sel ? 'punkt referencyjny' : '';
+    $('#selDist').textContent = '';
+    $('#negNote').style.display = 'none';
+  }
+
+  $('#cval').textContent = speedOfSound().toFixed(1) + ' m/s';
+  $('#btnDel').style.display = sel ? 'inline-flex' : 'none';
+  $('#selEdit').style.display = sel ? 'block' : 'none';
 }
-function renderTable(){
+
+function renderTable() {
   renderTableRows();
-  if(sel){$('#selLabel').value=sel.label;$('#selLat').value=sel.lat||0;$('#selSrc').checked=isSource(sel);
-    $('#selAngle').value=Math.round((sel.angle*180/Math.PI+90+360)%360);
-    $('#selSpread').value=Math.round((sel.spread||70*Math.PI/180)*180/Math.PI);
-    $('#selThrow').value=sel.throwM||TYPES[sel.type].throwM||25;
-    $('#spreadGroupNm').textContent=TYPES[sel.type].nm;
-    const cnt=state.els.filter(x=>x.type===sel.type).length;
-    $('#btnSpreadGroup').style.display=cnt>1?'inline-flex':'none';}
+  if(sel) {
+    $('#selLabel').value = sel.label;
+    $('#selLat').value = sel.lat || 0;
+    $('#selSrc').checked = isSource(sel);
+    $('#selAngle').value = Math.round((sel.angle * 180 / Math.PI + 90 + 360) % 360);
+    $('#selSpread').value = Math.round((sel.spread || 70 * Math.PI / 180) * 180 / Math.PI);
+    $('#selThrow').value = sel.throwM || TYPES[sel.type].throwM || 25;
+    const cnt = state.els.filter(x => x.type === sel.type).length;
+    $('#btnSpreadGroup').style.display = cnt > 1 ? 'inline-flex' : 'none';
+  }
 }
 
-// ---- delete ----
-function deleteEl(el){
-  if(!el)return;
-  state.els=state.els.filter(x=>x.id!==el.id);
-  if(state.refId===el.id) state.refId=state.els[0]?.id||null;
-  if(sel===el) sel=null;
-  draw();renderTable();scheduleAutosave();
+function deleteEl(el) {
+  if(!el) return;
+  state.els = state.els.filter(x => x.id !== el.id);
+  if(state.refId === el.id) state.refId = state.els[0]?.id || null;
+  if(sel === el) sel = null;
+  draw();
+  renderTable();
+  scheduleCloudSave();
 }
-$('#btnDel').onclick=()=>deleteEl(sel);
-$('#selLabel').addEventListener('input',()=>{if(sel){sel.label=$('#selLabel').value;draw();renderTableRows();}});
-$('#selLat').addEventListener('input',()=>{if(sel){sel.lat=parseFloat($('#selLat').value)||0;draw();renderTableRows();}});
-$('#selSrc').addEventListener('change',()=>{if(sel){sel.src=$('#selSrc').checked;draw();renderTableRows();}});
-// kąt grania i szerokość pokrycia — wpisywane ręcznie z klawiatury (zamiast tylko obracania uchwytem)
-$('#selAngle').addEventListener('input',()=>{
-  if(!sel)return;const deg=parseFloat($('#selAngle').value);if(isNaN(deg))return;
-  sel.angle=(deg-90)*Math.PI/180;draw();renderTableRows();
+
+$('#btnDel').onclick = () => deleteEl(sel);
+$('#selLabel').addEventListener('input', () => {
+  if(sel) {
+    sel.label = $('#selLabel').value;
+    draw();
+    renderTableRows();
+    scheduleCloudSave();
+  }
 });
-$('#selSpread').addEventListener('input',()=>{
-  if(!sel)return;const deg=parseFloat($('#selSpread').value);if(isNaN(deg)||deg<=0)return;
-  sel.spread=Math.min(deg,360)*Math.PI/180;draw();
+$('#selLat').addEventListener('input', () => {
+  if(sel) {
+    sel.lat = parseFloat($('#selLat').value) || 0;
+    draw();
+    renderTableRows();
+    scheduleCloudSave();
+  }
 });
-$('#selThrow').addEventListener('input',()=>{
-  if(!sel)return;const m=parseFloat($('#selThrow').value);if(isNaN(m)||m<=0)return;
-  sel.throwM=m;draw();
+$('#selSrc').addEventListener('change', () => {
+  if(sel) {
+    sel.src = $('#selSrc').checked;
+    draw();
+    renderTableRows();
+    scheduleCloudSave();
+  }
 });
-// kopiuje szerokość pokrycia zaznaczonego głośnika na wszystkie elementy tego samego typu (np. wszystkie Delay line)
-$('#btnSpreadGroup').onclick=()=>{
-  if(!sel)return;
-  const n=state.els.filter(x=>x.type===sel.type).length;
-  if(!confirm(`Ustawić szerokość pokrycia ${Math.round(sel.spread*180/Math.PI)}° dla wszystkich elementów typu „${TYPES[sel.type].nm}” (${n} szt.)?`))return;
-  state.els.forEach(e=>{if(e.type===sel.type)e.spread=sel.spread;});
-  draw();renderTableRows();scheduleAutosave();
+$('#selAngle').addEventListener('input', () => {
+  if(!sel) return;
+  const deg = parseFloat($('#selAngle').value);
+  if(isNaN(deg)) return;
+  sel.angle = (deg - 90) * Math.PI / 180;
+  draw();
+  renderTableRows();
+  scheduleCloudSave();
+});
+$('#selSpread').addEventListener('input', () => {
+  if(!sel) return;
+  const deg = parseFloat($('#selSpread').value);
+  if(isNaN(deg) || deg <= 0) return;
+  sel.spread = Math.min(deg, 360) * Math.PI / 180;
+  draw();
+  scheduleCloudSave();
+});
+$('#selThrow').addEventListener('input', () => {
+  if(!sel) return;
+  const m = parseFloat($('#selThrow').value);
+  if(isNaN(m) || m <= 0) return;
+  sel.throwM = m;
+  draw();
+  scheduleCloudSave();
+});
+$('#btnSpreadGroup').onclick = () => {
+  if(!sel) return;
+  const n = state.els.filter(x => x.type === sel.type).length;
+  if(!confirm(`Ustawić szerokość ${Math.round(sel.spread * 180 / Math.PI)}° dla ${n} elementów?`)) return;
+  state.els.forEach(e => { if(e.type === sel.type) e.spread = sel.spread; });
+  draw();
+  renderTableRows();
+  scheduleCloudSave();
 };
 
-
-// ====== NARZĘDZIA POMIAROWE ======
-let toolMode=null; // 'ruler' | 'protr' | null
-let toolPts=[];    // punkty robocze (współrzędne świata)
-let toolMouse=null;// pozycja myszy/palca na żywo
-const toolHistory=[];// max 5 ostatnich wyników
-
-const TOOL_HINTS={
-  ruler:'Kliknij kolejne punkty, by mierzyć dystans. Kliknij dwukrotnie ostatni punkt (lub naciśnij Enter), by zakończyć i zsumować.',
-  protr:'Kliknij wierzchołek kąta (1/3), potem pierwsze ramię (2/3), potem drugie ramię (3/3). Kąt wyświetli się automatycznie.',
+// TOOLS
+const TOOL_HINTS = {
+  ruler: 'Kliknij kolejne punkty. Dwuklik ostatniego = koniec.',
+  protr: 'Wierzchołek (1/3), pierwsza linia (2/3), druga linia (3/3).',
 };
 
-function startTool(mode){
-  if(toolMode)endTool();
-  toolMode=mode;toolPts=[];toolMouse=null;
-  $('#toolPill').style.display='';$('#toolMsg').textContent=mode==='ruler'?'Dalmierz — kliknij punkt startowy':'Kątomierz — kliknij wierzchołek';
-  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.toggle('pri',b.dataset.tool===mode));
-  $('#toolHint').style.display='';$('#toolHint').textContent=TOOL_HINTS[mode];
-  $('#toolResult').style.display='none';
-  cv.style.cursor='crosshair';
-  if(window.matchMedia('(max-width:900px)').matches)$('#side').classList.remove('collapsed');
+function startTool(mode) {
+  if(toolMode) endTool();
+  toolMode = mode;
+  toolPts = [];
+  toolMouse = null;
+  $('#toolPill').style.display = '';
+  $('#toolMsg').textContent = mode === 'ruler' ? 'Dalmierz' : 'Kątomierz';
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.toggle('pri', b.dataset.tool === mode));
+  $('#toolHint').style.display = '';
+  $('#toolHint').textContent = TOOL_HINTS[mode];
+  $('#toolResult').style.display = 'none';
+  cv.style.cursor = 'crosshair';
   draw();
 }
-function endTool(){
-  toolMode=null;toolPts=[];toolMouse=null;
-  $('#toolPill').style.display='none';
-  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('pri'));
-  $('#toolHint').style.display='none';
-  cv.style.cursor='';
+
+function endTool() {
+  toolMode = null;
+  toolPts = [];
+  toolMouse = null;
+  $('#toolPill').style.display = 'none';
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('pri'));
+  $('#toolHint').style.display = 'none';
+  cv.style.cursor = '';
   draw();
 }
-function toolClick(wx,wy){
-  if(!toolMode)return;
-  if(toolMode==='ruler'){
-    // sprawdź double-click (drugi klik w < 300ms i blisko)
-    const last=toolPts[toolPts.length-1];
-    const screenDist=last?Math.hypot((wx-last.x)*view.zoom,(wy-last.y)*view.zoom):999;
-    if(toolPts.length>=2 && screenDist<15){rulerFinish();return;}
-    toolPts.push({x:wx,y:wy});
-    if(toolPts.length===1)$('#toolMsg').textContent='Dalmierz — kliknij kolejny punkt (dwuklik ostatniego = koniec)';
-    updateToolResult();draw();
-  } else if(toolMode==='protr'){
-    toolPts.push({x:wx,y:wy});
-    if(toolPts.length===1)$('#toolMsg').textContent='Kątomierz — kliknij punkt na pierwszym ramieniu';
-    else if(toolPts.length===2)$('#toolMsg').textContent='Kątomierz — kliknij punkt na drugim ramieniu';
-    else if(toolPts.length>=3){protrFinish();return;}
+
+function toolClick(wx, wy) {
+  if(!toolMode) return;
+  if(toolMode === 'ruler') {
+    const last = toolPts[toolPts.length - 1];
+    const screenDist = last ? Math.hypot((wx - last.x) * view.zoom, (wy - last.y) * view.zoom) : 999;
+    if(toolPts.length >= 2 && screenDist < 15) {
+      rulerFinish();
+      return;
+    }
+    toolPts.push({x: wx, y: wy});
+    if(toolPts.length === 1) $('#toolMsg').textContent = 'Dalmierz — kliknij kolejny (dwuklik = koniec)';
+    updateToolResult();
+    draw();
+  } else if(toolMode === 'protr') {
+    toolPts.push({x: wx, y: wy});
+    if(toolPts.length === 1) $('#toolMsg').textContent = 'Kątomierz — linia 1';
+    else if(toolPts.length === 2) $('#toolMsg').textContent = 'Kątomierz — linia 2';
+    else if(toolPts.length >= 3) {
+      protrFinish();
+      return;
+    }
     draw();
   }
 }
-function rulerFinish(){
-  if(toolPts.length<2)return;
-  let total=0;
-  for(let i=1;i<toolPts.length;i++)total+=distM(toolPts[i-1],toolPts[i]);
-  const ms=total/speedOfSound()*1000;
-  const result=`${total.toFixed(2)} m`;
-  const sub=`${ms.toFixed(1)} ms przy ${speedOfSound().toFixed(0)} m/s · ${toolPts.length-1} odcinek${toolPts.length===2?'':'ów'}`;
-  showToolResult(result,sub,'📐 Dalmierz');
+
+function rulerFinish() {
+  if(toolPts.length < 2) return;
+  let total = 0;
+  for(let i = 1; i < toolPts.length; i++) total += distM(toolPts[i - 1], toolPts[i]);
+  const ms = total / speedOfSound() * 1000;
+  const result = `${total.toFixed(2)} m`;
+  const sub = `${ms.toFixed(1)} ms · ${toolPts.length - 1} segment`;
+  showToolResult(result, sub);
 }
-function protrFinish(){
-  const [v,a,b]=toolPts;
-  const ang1=Math.atan2(a.y-v.y,a.x-v.x);
-  const ang2=Math.atan2(b.y-v.y,b.x-v.x);
-  let deg=Math.abs((ang2-ang1)*180/Math.PI);
-  if(deg>180)deg=360-deg;
-  const result=`${deg.toFixed(1)}°`;
-  const sub=`kąt między ramieniami mierzony w wierzchołku`;
-  showToolResult(result,sub,'∠ Kątomierz');
+
+function protrFinish() {
+  const [v, a, b] = toolPts;
+  const ang1 = Math.atan2(a.y - v.y, a.x - v.x);
+  const ang2 = Math.atan2(b.y - v.y, b.x - v.x);
+  let deg = Math.abs((ang2 - ang1) * 180 / Math.PI);
+  if(deg > 180) deg = 360 - deg;
+  const result = `${deg.toFixed(1)}°`;
+  const sub = 'kąt między ramieniami';
+  showToolResult(result, sub);
 }
-function updateToolResult(){
-  if(toolMode==='ruler' && toolPts.length>=2){
-    let total=0;for(let i=1;i<toolPts.length;i++)total+=distM(toolPts[i-1],toolPts[i]);
-    const ms=total/speedOfSound()*1000;
-    $('#toolResult').style.display='block';
-    $('#toolResultVal').textContent=total.toFixed(2)+' m';
-    $('#toolResultSub').textContent=ms.toFixed(1)+' ms · na żywo';
+
+function updateToolResult() {
+  if(toolMode === 'ruler' && toolPts.length >= 2) {
+    let total = 0;
+    for(let i = 1; i < toolPts.length; i++) total += distM(toolPts[i - 1], toolPts[i]);
+    $('#toolResult').style.display = 'block';
+    $('#toolResultVal').textContent = total.toFixed(2) + ' m';
+    $('#toolResultSub').textContent = (total / speedOfSound() * 1000).toFixed(1) + ' ms';
   }
 }
-function showToolResult(val,sub,label){
-  $('#toolResult').style.display='block';
-  $('#toolResultVal').textContent=val;
-  $('#toolResultSub').textContent=sub;
-  addHistory(label,val,sub);
-  $('#toolMsg').textContent='Gotowe — zacznij od nowa lub zamknij';
-  toolPts=[];toolMouse=null;draw();
-}
-function addHistory(label,val,sub){
-  toolHistory.unshift({label,val,sub,time:new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})});
-  if(toolHistory.length>5)toolHistory.pop();
-  renderHistory();
-}
-function renderHistory(){
-  if(!toolHistory.length){$('#toolHistory').style.display='none';return;}
-  $('#toolHistory').style.display='block';
-  $('#toolHistoryList').innerHTML=toolHistory.map(h=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--line)"><span style="color:var(--dim)">${h.time} ${h.label}</span><b class="mono" style="color:var(--txt)">${h.val}</b></div>`).join('');
-}
-// rysowanie narzędzi na kanvasie
-function drawTools(){
-  if(!toolMode)return;
-  const acc2=getCSS('--acc2'),acc=getCSS('--acc');
-  ctx.save();
-  // punkty robocze
-  const pts=toolPts.map(p=>({sx:p.x*view.zoom+view.ox,sy:p.y*view.zoom+view.oy}));
-  const mouse=toolMouse?{sx:toolMouse.x*view.zoom+view.ox,sy:toolMouse.y*view.zoom+view.oy}:null;
 
-  if(toolMode==='ruler'){
-    const allPts=[...pts];if(mouse&&pts.length>0)allPts.push({sx:mouse.sx,sy:mouse.sy});
-    // linie segmentów
-    if(allPts.length>=2){
-      ctx.strokeStyle=acc2;ctx.lineWidth=2;ctx.setLineDash([6,4]);
-      ctx.beginPath();ctx.moveTo(allPts[0].sx,allPts[0].sy);
-      for(let i=1;i<allPts.length;i++)ctx.lineTo(allPts[i].sx,allPts[i].sy);
-      ctx.stroke();ctx.setLineDash([]);
+function showToolResult(val, sub) {
+  $('#toolResult').style.display = 'block';
+  $('#toolResultVal').textContent = val;
+  $('#toolResultSub').textContent = sub;
+  $('#toolMsg').textContent = 'Gotowe — zacznij od nowa lub zamknij';
+  toolPts = [];
+  toolMouse = null;
+  draw();
+}
+
+function drawTools() {
+  if(!toolMode) return;
+  const acc2 = getCSS('--acc2'), acc = getCSS('--acc');
+  ctx.save();
+  const pts = toolPts.map(p => ({sx: p.x * view.zoom + view.ox, sy: p.y * view.zoom + view.oy}));
+  const mouse = toolMouse ? {sx: toolMouse.x * view.zoom + view.ox, sy: toolMouse.y * view.zoom + view.oy} : null;
+
+  if(toolMode === 'ruler') {
+    const allPts = [...pts];
+    if(mouse && pts.length > 0) allPts.push({sx: mouse.sx, sy: mouse.sy});
+    if(allPts.length >= 2) {
+      ctx.strokeStyle = acc2;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(allPts[0].sx, allPts[0].sy);
+      for(let i = 1; i < allPts.length; i++) ctx.lineTo(allPts[i].sx, allPts[i].sy);
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
-    // punkty + etykiety dystansów
-    let cum=0;
-    pts.forEach((p,i)=>{
-      ctx.fillStyle=acc2;ctx.beginPath();ctx.arc(p.sx,p.sy,5,0,7);ctx.fill();
-      ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.stroke();
-      if(i>0){
-        const prev=pts[i-1];const seg=distM(toolPts[i-1],toolPts[i]);cum+=seg;
-        const mx=(p.sx+prev.sx)/2,my=(p.sy+prev.sy)/2-12;
-        ctx.font='600 11px Archivo';ctx.fillStyle=acc2;ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillStyle='rgba(0,0,0,.55)';roundRect(mx-26,my-9,52,18,4);ctx.fill();
-        ctx.fillStyle=acc2;ctx.fillText(seg.toFixed(1)+'m',mx,my);
-      }
-    });
-    // suma przy kursorem
-    if(mouse&&pts.length>0){
-      const last=pts[pts.length-1];
-      const seg=distM(toolPts[toolPts.length-1],toolMouse);
-      let total=0;for(let i=1;i<toolPts.length;i++)total+=distM(toolPts[i-1],toolPts[i]);total+=seg;
-      ctx.font='700 13px JetBrains Mono';ctx.fillStyle=acc2;ctx.textAlign='left';ctx.textBaseline='middle';
-      const label=`Σ ${total.toFixed(2)} m`;
-      ctx.fillStyle='rgba(0,0,0,.7)';roundRect(mouse.sx+12,mouse.sy-12,ctx.measureText(label).width+16,22,5);ctx.fill();
-      ctx.fillStyle=acc2;ctx.fillText(label,mouse.sx+20,mouse.sy);
-    }
-  } else if(toolMode==='protr'){
-    const allPts=[...pts];if(mouse&&pts.length>0&&pts.length<3)allPts.push({sx:mouse.sx,sy:mouse.sy,wx:toolMouse.x,wy:toolMouse.y});
-    // ramiona
-    if(allPts.length>=2){
-      ctx.strokeStyle=acc;ctx.lineWidth=2;ctx.setLineDash([6,4]);
-      ctx.beginPath();ctx.moveTo(allPts[0].sx,allPts[0].sy);ctx.lineTo(allPts[1].sx,allPts[1].sy);ctx.stroke();
-    }
-    if(allPts.length>=3){
-      ctx.beginPath();ctx.moveTo(allPts[0].sx,allPts[0].sy);ctx.lineTo(allPts[2].sx,allPts[2].sy);ctx.stroke();ctx.setLineDash([]);
-      // kąt na żywo
-      const vp=allPts[0];
-      const a1=Math.atan2(allPts[1].sy-vp.sy,allPts[1].sx-vp.sx);
-      const a2=Math.atan2(allPts[2].sy-vp.sy,allPts[2].sx-vp.sx);
-      let deg=Math.abs((a2-a1)*180/Math.PI);if(deg>180)deg=360-deg;
-      // łuk kąta
-      const r=40;const aStart=Math.min(a1,a2),aEnd=Math.max(a1,a2);
-      const span=aEnd-aStart;
-      ctx.strokeStyle=acc;ctx.lineWidth=1.5;ctx.setLineDash([]);
-      ctx.beginPath();ctx.arc(vp.sx,vp.sy,r,span>Math.PI?aEnd:aStart,span>Math.PI?aStart+2*Math.PI:aEnd);ctx.stroke();
-      // etykieta kąta
-      const midA=(a1+a2)/2+(span>Math.PI?Math.PI:0);
-      const lx=vp.sx+Math.cos(midA)*(r+22),ly=vp.sy+Math.sin(midA)*(r+22);
-      const label=deg.toFixed(1)+'°';
-      ctx.font='700 14px JetBrains Mono';
-      ctx.fillStyle='rgba(0,0,0,.7)';roundRect(lx-28,ly-11,ctx.measureText(label).width+16,22,5);ctx.fill();
-      ctx.fillStyle=acc;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(label,lx-20,ly);
-    }
-    // punkty
-    allPts.forEach((p,i)=>{
-      ctx.fillStyle=i===0?acc:acc2;ctx.beginPath();ctx.arc(p.sx,p.sy,i===0?7:5,0,7);ctx.fill();
-      ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.stroke();
+    pts.forEach((p, i) => {
+      ctx.fillStyle = acc2;
+      ctx.beginPath();
+      ctx.arc(p.sx, p.sy, 5, 0, 7);
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
     });
   }
   ctx.restore();
 }
-// obsługa kliknięć narzędzi w down()
-$('#toolCancel').onclick=endTool;
-$('#btnToolClear').onclick=()=>{toolPts=[];toolMouse=null;$('#toolResult').style.display='none';$('#toolMsg').textContent=toolMode==='ruler'?'Dalmierz — kliknij punkt startowy':'Kątomierz — kliknij wierzchołek';draw();};
-document.querySelectorAll('.tool-btn').forEach(b=>b.onclick=()=>{
-  if(toolMode===b.dataset.tool)endTool();else startTool(b.dataset.tool);
+
+$('#toolCancel').onclick = endTool;
+$('#btnToolClear').onclick = () => {
+  toolPts = [];
+  toolMouse = null;
+  $('#toolResult').style.display = 'none';
+  draw();
+};
+
+document.querySelectorAll('.tool-btn').forEach(b => {
+  b.onclick = () => {
+    if(toolMode === b.dataset.tool) endTool();
+    else startTool(b.dataset.tool);
+  };
 });
-// śledzenie myszy na płótnie dla podglądu na żywo
-cv.addEventListener('mousemove',e=>{
-  if(!toolMode)return;
-  const{x,y}=getXY(e);
-  toolMouse={x:(x-view.ox)/view.zoom,y:(y-view.oy)/view.zoom};
-  if(toolMode==='ruler')updateToolResult();
+
+cv.addEventListener('mousemove', e => {
+  if(!toolMode) return;
+  const {x, y} = getXY(e);
+  toolMouse = {x: (x - view.ox) / view.zoom, y: (y - view.oy) / view.zoom};
+  if(toolMode === 'ruler') updateToolResult();
   draw();
 });
-cv.addEventListener('mouseleave',()=>{toolMouse=null;draw();});
-window.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){if(toolMode)endTool();if(calMode)endCal();}
-  if(e.key==='Enter'&&toolMode==='ruler'&&toolPts.length>=2){rulerFinish();}
-  if((e.key==='Delete'||e.key==='Backspace')&&sel&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){
-    e.preventDefault();deleteEl(sel);
+cv.addEventListener('mouseleave', () => { toolMouse = null; draw(); });
+
+window.addEventListener('keydown', e => {
+  if(e.key === 'Escape') {
+    if(toolMode) endTool();
+    if(calMode) endCal();
+  }
+  if(e.key === 'Enter' && toolMode === 'ruler' && toolPts.length >= 2) {
+    rulerFinish();
+  }
+  if((e.key === 'Delete' || e.key === 'Backspace') && sel && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT') {
+    e.preventDefault();
+    deleteEl(sel);
   }
 });
-// ---- controls ----
-['temp','sr','haas','scale'].forEach(id=>$('#'+id).addEventListener('input',()=>{draw();renderTable();}));
-$('#btnNew').onclick=()=>{if(confirm('Nowy projekt? Niezapisane zmiany przepadną.')){state={els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};sel=null;view={zoom:1,ox:0,oy:0};draw();renderTable();clearAutosave();}};
-$('#btnBg').onclick=()=>$('#fileBg').click();
-$('#fileBg').onchange=async e=>{
-  const f=e.target.files[0];if(!f)return;
-  if(f.type==='application/pdf'){
-    try{
-      if(!window.pdfjsLib){
-        await new Promise((res,rej)=>{const s=document.createElement('script');
-          s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});
-        pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// CONTROLS
+['temp', 'sr', 'haas', 'scale'].forEach(id => {
+  $('#' + id).addEventListener('input', () => {
+    draw();
+    renderTable();
+    scheduleCloudSave();
+  });
+});
+
+$('#btnNew').onclick = () => {
+  if(confirm('Nowy projekt? Niezapisane zmiany przepadną.')) {
+    state = {els: [], refId: null, bg: null, bgImg: null, bgDataUrl: null};
+    sel = null;
+    view = {zoom: 1, ox: 0, oy: 0};
+    currentProjectId = null;
+    $('#projTitle').textContent = '(Nowy projekt)';
+    draw();
+    renderTable();
+  }
+};
+
+$('#btnBg').onclick = () => $('#fileBg').click();
+$('#fileBg').onchange = async e => {
+  const f = e.target.files[0];
+  if(!f) return;
+  if(f.type === 'application/pdf') {
+    try {
+      if(!window.pdfjsLib) {
+        await new Promise((res, rej) => {
+          const s = document.createElement('script');
+          s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+          s.onload = res;
+          s.onerror = rej;
+          document.head.appendChild(s);
+        });
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
       }
-      const buf=await f.arrayBuffer();
-      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
-      const page=await pdf.getPage(1);
-      const vp=page.getViewport({scale:2});
-      const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
-      await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
-      state.bgImg=c;state.bgDataUrl=c.toDataURL('image/png');$('#btnBgClear').style.display='inline-flex';draw();scheduleAutosave();
-    }catch(err){alert('Nie udało się wczytać PDF (offline brak dostępu do biblioteki PDF). Użyj JPG/PNG albo otwórz aplikację przez internet.');}
-  }else{
-    const img=new Image();img.onload=()=>{state.bgImg=img;state.bgDataUrl=bgToDataURL();$('#btnBgClear').style.display='inline-flex';draw();scheduleAutosave();};img.src=URL.createObjectURL(f);
+      const buf = await f.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+      const page = await pdf.getPage(1);
+      const vp = page.getViewport({scale: 2});
+      const c = document.createElement('canvas');
+      c.width = vp.width;
+      c.height = vp.height;
+      await page.render({canvasContext: c.getContext('2d'), viewport: vp}).promise;
+      state.bgImg = c;
+      state.bgDataUrl = c.toDataURL('image/png');
+      $('#btnBgClear').style.display = 'inline-flex';
+      draw();
+      scheduleCloudSave();
+    } catch(err) {
+      alert('Nie udało się wczytać PDF');
+    }
+  } else {
+    const img = new Image();
+    img.onload = () => {
+      state.bgImg = img;
+      state.bgDataUrl = bgToDataURL();
+      $('#btnBgClear').style.display = 'inline-flex';
+      draw();
+      scheduleCloudSave();
+    };
+    img.src = URL.createObjectURL(f);
   }
-  e.target.value=''; // pozwala wgrać ten sam plik ponownie
+  e.target.value = '';
 };
-$('#btnBgClear').onclick=()=>{state.bgImg=null;state.bgDataUrl=null;$('#btnBgClear').style.display='none';draw();scheduleAutosave();};
-$('#btnCal').onclick=()=>{
-  if(calMode){endCal();return;}
-  calMode=true;calPts=[];$('#calPill').style.display='';$('#calMsg').textContent='Kliknij pierwszy punkt';
-  $('#btnCal').classList.add('pri');cv.style.cursor='crosshair';
-  if(window.matchMedia('(max-width:900px)').matches)$('#side').classList.remove('open');
+
+$('#btnBgClear').onclick = () => {
+  state.bgImg = null;
+  state.bgDataUrl = null;
+  $('#btnBgClear').style.display = 'none';
+  draw();
+  scheduleCloudSave();
+};
+
+$('#btnCal').onclick = () => {
+  if(calMode) {
+    endCal();
+    return;
+  }
+  calMode = true;
+  calPts = [];
+  $('#calPill').style.display = '';
+  $('#calMsg').textContent = 'Kliknij pierwszy punkt';
+  $('#btnCal').classList.add('pri');
+  cv.style.cursor = 'crosshair';
   draw();
 };
-$('#calCancel').onclick=endCal;
-$('#bgOp').addEventListener('input',()=>{$('#bgOpVal').textContent=$('#bgOp').value+'%';draw();});
-$('#coneOp').addEventListener('input',()=>{coneOpacity=parseInt($('#coneOp').value)/100;$('#coneOpVal').textContent=$('#coneOp').value+'%';draw();});
+$('#calCancel').onclick = endCal;
 
-// --- motyw jasny / ciemny ---
-$('#btnTheme').onclick=()=>{
+$('#bgOp').addEventListener('input', () => {
+  $('#bgOpVal').textContent = $('#bgOp').value + '%';
+  draw();
+});
+$('#coneOp').addEventListener('input', () => {
+  coneOpacity = parseInt($('#coneOp').value) / 100;
+  $('#coneOpVal').textContent = $('#coneOp').value + '%';
+  draw();
+});
+
+$('#btnTheme').onclick = () => {
   document.body.classList.toggle('light');
-  $('#btnTheme').textContent=document.body.classList.contains('light')?'☾':'☀︎';
+  $('#btnTheme').textContent = document.body.classList.contains('light') ? '☾' : '☀︎';
   draw();
 };
 
-// --- orientacja projektu: domyślny kierunek + obrót istniejących ---
-function setFront(dir){
-  const old=DIR_ANGLE[frontDir], neu=DIR_ANGLE[dir];
-  let d=neu-old; // delta obrotu
-  // obróć już dodane głośniki o tę samą deltę
-  state.els.forEach(e=>{e.angle+=d;});
-  frontDir=dir;
-  document.querySelectorAll('.tbtn.dir').forEach(b=>b.classList.toggle('on',b.dataset.dir===dir));
-  draw();renderTable();
+function setFront(dir) {
+  const old = DIR_ANGLE[frontDir], neu = DIR_ANGLE[dir];
+  let d = neu - old;
+  state.els.forEach(e => { e.angle += d; });
+  frontDir = dir;
+  document.querySelectorAll('.tbtn.dir').forEach(b => b.classList.toggle('on', b.dataset.dir === dir));
+  draw();
+  renderTable();
+  scheduleCloudSave();
 }
-document.querySelectorAll('.tbtn.dir').forEach(b=>b.onclick=()=>setFront(b.dataset.dir));
+document.querySelectorAll('.tbtn.dir').forEach(b => b.onclick = () => setFront(b.dataset.dir));
 
-// --- Wyśrodkuj: dopasuj zoom/przesunięcie tak, by wszystkie elementy zmieściły się wycentrowane na scenie ---
-function fitToScreen(){
-  let minX,minY,maxX,maxY;
-  if(state.bgImg){
-    // jest podkład — centrujemy/dopasowujemy do całego planu (współrzędne świata 0..width/height)
-    minX=0;minY=0;maxX=state.bgImg.width;maxY=state.bgImg.height;
-  }else if(state.els.length){
-    // brak podkładu — centrujemy do samych dodanych elementów
-    minX=Infinity;minY=Infinity;maxX=-Infinity;maxY=-Infinity;
-    state.els.forEach(e=>{minX=Math.min(minX,e.x);minY=Math.min(minY,e.y);maxX=Math.max(maxX,e.x);maxY=Math.max(maxY,e.y);});
-  }else{
-    alert('Brak elementów ani podkładu do wyśrodkowania — dodaj głośniki lub wgraj plan.');return;
+function fitToScreen() {
+  let minX, minY, maxX, maxY;
+  if(state.bgImg) {
+    minX = 0;
+    minY = 0;
+    maxX = state.bgImg.width;
+    maxY = state.bgImg.height;
+  } else if(state.els.length) {
+    minX = Infinity;
+    minY = Infinity;
+    maxX = -Infinity;
+    maxY = -Infinity;
+    state.els.forEach(e => {
+      minX = Math.min(minX, e.x);
+      minY = Math.min(minY, e.y);
+      maxX = Math.max(maxX, e.x);
+      maxY = Math.max(maxY, e.y);
+    });
+  } else {
+    alert('Brak elementów do wyśrodkowania');
+    return;
   }
-  const W=cv.clientWidth,H=cv.clientHeight,pad=90; // margines wokół skrajnych elementów / planu [px ekranu]
-  const bw=Math.max(maxX-minX,1),bh=Math.max(maxY-minY,1);
-  let zoom=Math.min((W-2*pad)/bw,(H-2*pad)/bh);
-  zoom=Math.max(0.05,Math.min(zoom,4)); // rozsądne granice powiększenia
-  const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
-  view.zoom=zoom;view.ox=W/2-cx*zoom;view.oy=H/2-cy*zoom;
-  syncZoomSlider();draw();
+  const W = cv.clientWidth, H = cv.clientHeight, pad = 90;
+  const bw = Math.max(maxX - minX, 1), bh = Math.max(maxY - minY, 1);
+  let zoom = Math.min((W - 2 * pad) / bw, (H - 2 * pad) / bh);
+  zoom = Math.max(0.05, Math.min(zoom, 4));
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  view.zoom = zoom;
+  view.ox = W / 2 - cx * zoom;
+  view.oy = H / 2 - cy * zoom;
+  syncZoomSlider();
+  draw();
 }
-$('#btnFit').onclick=fitToScreen;
+$('#btnFit').onclick = fitToScreen;
 
-// koduje wgrany podkład (Image lub canvas z PDF) do data URL, by zapisać go w pliku JSON
-function bgToDataURL(){
-  if(!state.bgImg)return null;
-  const c=document.createElement('canvas');c.width=state.bgImg.width;c.height=state.bgImg.height;
-  c.getContext('2d').drawImage(state.bgImg,0,0);
+function bgToDataURL() {
+  if(!state.bgImg) return null;
+  const c = document.createElement('canvas');
+  c.width = state.bgImg.width;
+  c.height = state.bgImg.height;
+  c.getContext('2d').drawImage(state.bgImg, 0, 0);
   return c.toDataURL('image/png');
 }
-// znacznik czasu do nazw plików, np. 2026-06-08_17-25
-function fileStamp(){
-  const d=new Date(),p=n=>String(n).padStart(2,'0');
-  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
+
+function fileStamp() {
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
 }
-// buduje serializowalny obiekt projektu (do pliku JSON, do localStorage-autozapisu — to samo źródło prawdy)
-function buildProjectData(){
-  const data={...state,settings:{temp:$('#temp').value,sr:$('#sr').value,haas:$('#haas').value,scale:$('#scale').value,frontDir,bgOp:$('#bgOp').value,coneOp:$('#coneOp').value,light:document.body.classList.contains('light')},bgDataUrl:state.bgDataUrl||null};
+
+function buildProjectData() {
+  const data = {
+    ...state,
+    settings: {
+      temp: $('#temp').value,
+      sr: $('#sr').value,
+      haas: $('#haas').value,
+      scale: $('#scale').value,
+      frontDir,
+      bgOp: $('#bgOp').value,
+      coneOp: $('#coneOp').value,
+      light: document.body.classList.contains('light')
+    },
+    bgDataUrl: state.bgDataUrl || null
+  };
   delete data.bgImg;
   return data;
 }
-// stosuje wczytany obiekt projektu (z pliku JSON lub z autozapisu) do bieżącego stanu aplikacji
-function applyProjectData(d){
-  state.els=d.els||[];state.refId=d.refId;
-  state.bgImg=null;state.bgDataUrl=d.bgDataUrl||null;$('#btnBgClear').style.display='none';
-  if(d.bgDataUrl){const img=new Image();img.onload=()=>{state.bgImg=img;$('#btnBgClear').style.display='inline-flex';draw();};img.src=d.bgDataUrl;}
-  if(d.settings){$('#temp').value=d.settings.temp;$('#sr').value=d.settings.sr;$('#haas').value=d.settings.haas;$('#scale').value=d.settings.scale;
-    if(d.settings.frontDir){frontDir=d.settings.frontDir;document.querySelectorAll('.tbtn.dir').forEach(b=>b.classList.toggle('on',b.dataset.dir===frontDir));}
-    if(d.settings.bgOp){$('#bgOp').value=d.settings.bgOp;$('#bgOpVal').textContent=d.settings.bgOp+'%';}
-    if(d.settings.coneOp){$('#coneOp').value=d.settings.coneOp;$('#coneOpVal').textContent=d.settings.coneOp+'%';coneOpacity=parseInt(d.settings.coneOp)/100;}
-    if(d.settings.light){document.body.classList.add('light');$('#btnTheme').textContent='☾';}else{document.body.classList.remove('light');$('#btnTheme').textContent='☀︎';}}
-  sel=null;draw();renderTable();
-}
-$('#btnSave').onclick=async()=>{
-  const data=buildProjectData();
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const name=`pa-delay-projekt_${fileStamp()}.json`;
-  // File System Access API — pozwala wybrać folder/nazwę zapisu (obsługiwane np. w Chrome/Edge na komputerze).
-  // Safari (iPad/Mac) tego nie obsługuje — wtedy używamy zwykłego pobierania (trafia do "Pobranych",
-  // a w Safari na iPadzie przy pobieraniu i tak pojawia się okno "Zapisz jako" z wyborem lokalizacji w Plikach).
-  if(window.showSaveFilePicker){
-    try{
-      const handle=await window.showSaveFilePicker({suggestedName:name,types:[{description:'Projekt PA Delay (JSON)',accept:{'application/json':['.json']}}]});
-      const w=await handle.createWritable();await w.write(blob);await w.close();
-      return;
-    }catch(err){if(err && err.name==='AbortError')return; /* użytkownik anulował okno wyboru */}
+
+function applyProjectData(d) {
+  state.els = d.els || [];
+  state.refId = d.refId;
+  state.bgImg = null;
+  state.bgDataUrl = d.bgDataUrl || null;
+  $('#btnBgClear').style.display = 'none';
+  if(d.bgDataUrl) {
+    const img = new Image();
+    img.onload = () => {
+      state.bgImg = img;
+      $('#btnBgClear').style.display = 'inline-flex';
+      draw();
+    };
+    img.src = d.bgDataUrl;
   }
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();
+  if(d.settings) {
+    $('#temp').value = d.settings.temp;
+    $('#sr').value = d.settings.sr;
+    $('#haas').value = d.settings.haas;
+    $('#scale').value = d.settings.scale;
+    if(d.settings.frontDir) {
+      frontDir = d.settings.frontDir;
+      document.querySelectorAll('.tbtn.dir').forEach(b => b.classList.toggle('on', b.dataset.dir === frontDir));
+    }
+    if(d.settings.bgOp) {
+      $('#bgOp').value = d.settings.bgOp;
+      $('#bgOpVal').textContent = d.settings.bgOp + '%';
+    }
+    if(d.settings.coneOp) {
+      $('#coneOp').value = d.settings.coneOp;
+      $('#coneOpVal').textContent = d.settings.coneOp + '%';
+      coneOpacity = parseInt(d.settings.coneOp) / 100;
+    }
+    if(d.settings.light) {
+      document.body.classList.add('light');
+      $('#btnTheme').textContent = '☾';
+    } else {
+      document.body.classList.remove('light');
+      $('#btnTheme').textContent = '☀︎';
+    }
+  }
+  sel = null;
+  draw();
+  renderTable();
+}
+
+$('#btnExport').onclick = async () => {
+  const data = buildProjectData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const name = `pa-delay-projekt_${fileStamp()}.json`;
+  if(window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: name,
+        types: [{description: 'Projekt PA Delay (JSON)', accept: {'application/json': ['.json']}}]
+      });
+      const w = await handle.createWritable();
+      await w.write(blob);
+      await w.close();
+      return;
+    } catch(err) {
+      if(err && err.name === 'AbortError') return;
+    }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
 };
-$('#btnLoad').onclick=()=>{
-  if(state.els.length && !confirm('Wczytać projekt z pliku? Niezapisane zmiany w bieżącym projekcie przepadną.'))return;
+
+$('#btnLoad').onclick = () => {
+  if(state.els.length && !confirm('Wczytać projekt? Niezapisane zmiany przepadną.')) return;
   $('#fileJson').click();
 };
-$('#fileJson').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{const d=JSON.parse(r.result);applyProjectData(d);clearAutosave();};r.readAsText(f);};
 
-$('#btnCsv').onclick=()=>{
-  let csv='Element;Typ;Rola;Odleglosc_m;Latencja_ms;Delay_ms;Probki;Kat_deg\n';
-  state.els.forEach(e=>{const isRef=e.id===state.refId;const dm=delayMs(e);
-    const dist=isRef?0:distM(e,ref());
-    const rola=isRef?'REF':(isSource(e)?'zrodlo':'delay');
-    const smp=Math.round(dm/1000*parseFloat($('#sr').value));
-    const delayCell=(isRef||isSource(e))?0:dm.toFixed(2);
-    const smpCell=(isRef||isSource(e))?0:smp;
-    csv+=`${e.label};${TYPES[e.type].nm};${rola};${dist.toFixed(2)};${(e.lat||0)};${delayCell};${smpCell};${Math.round((e.angle*180/Math.PI+90+360)%360)}\n`;});
-  const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pa-delay-nastawy.csv';a.click();
+$('#fileJson').onchange = e => {
+  const f = e.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    const d = JSON.parse(r.result);
+    applyProjectData(d);
+    currentProjectId = null;
+  };
+  r.readAsText(f);
 };
 
-$('#btnPdf').onclick=exportPdf;
-function exportPdf(){
-  const w=window.open('','_blank');const sr=parseFloat($('#sr').value);
-  let rows=state.els.map(e=>{const isRef=e.id===state.refId;const dm=delayMs(e);
-    const dist=isRef?0:distM(e,ref());
-    const rola=isRef?'REF (0)':(isSource(e)?'źródło':'delay');
-    const smp=Math.round(dm/1000*sr);
-    const delayCell=isRef?'REF (0)':(isSource(e)?'0 (źródło)':dm.toFixed(2)+' ms');
-    const smpCell=(isRef||isSource(e))?'—':smp;
-    return `<tr><td>${e.label}</td><td>${TYPES[e.type].nm}</td><td>${rola}</td><td>${dist.toFixed(2)} m</td><td>${e.lat||0} ms</td><td>${delayCell}</td><td>${smpCell}</td><td>${Math.round((e.angle*180/Math.PI+90+360)%360)}°</td></tr>`;}).join('');
-  const img=cv.toDataURL('image/png');
+$('#btnCsv').onclick = () => {
+  let csv = 'Element;Typ;Rola;Odleglosc_m;Latencja_ms;Delay_ms;Probki;Kat_deg\n';
+  state.els.forEach(e => {
+    const isRef = e.id === state.refId;
+    const dm = delayMs(e);
+    const dist = isRef ? 0 : distM(e, ref());
+    const rola = isRef ? 'REF' : (isSource(e) ? 'zrodlo' : 'delay');
+    const smp = Math.round(dm / 1000 * parseFloat($('#sr').value));
+    const delayCell = (isRef || isSource(e)) ? 0 : dm.toFixed(2);
+    const smpCell = (isRef || isSource(e)) ? 0 : smp;
+    csv += `${e.label};${TYPES[e.type].nm};${rola};${dist.toFixed(2)};${(e.lat || 0)};${delayCell};${smpCell};${Math.round((e.angle * 180 / Math.PI + 90 + 360) % 360)}\n`;
+  });
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pa-delay-nastawy.csv';
+  a.click();
+};
+
+$('#btnPdf').onclick = () => {
+  const w = window.open('', '_blank');
+  const sr = parseFloat($('#sr').value);
+  let rows = state.els.map(e => {
+    const isRef = e.id === state.refId;
+    const dm = delayMs(e);
+    const dist = isRef ? 0 : distM(e, ref());
+    const rola = isRef ? 'REF (0)' : (isSource(e) ? 'źródło' : 'delay');
+    const smp = Math.round(dm / 1000 * sr);
+    const delayCell = isRef ? 'REF (0)' : (isSource(e) ? '0 (źródło)' : dm.toFixed(2) + ' ms');
+    const smpCell = (isRef || isSource(e)) ? '—' : smp;
+    return `<tr><td>${e.label}</td><td>${TYPES[e.type].nm}</td><td>${rola}</td><td>${dist.toFixed(2)} m</td><td>${e.lat || 0} ms</td><td>${delayCell}</td><td>${smpCell}</td><td>${Math.round((e.angle * 180 / Math.PI + 90 + 360) % 360)}°</td></tr>`;
+  }).join('');
+  const img = cv.toDataURL('image/png');
   w.document.write(`<html><head><title>PA Delay — raport</title><style>
     body{font-family:Arial;margin:30px;color:#111}h1{font-size:20px}img{width:100%;border:1px solid #ccc;border-radius:8px;margin:14px 0}
     table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #ccc;padding:7px 9px;text-align:left}
     th{background:#f2f2f2}.meta{font-size:12px;color:#555;margin-bottom:10px}</style></head><body>
     <h1>PA Delay Designer — raport nastaw</h1>
-    <div class="meta">Temp: ${$('#temp').value}°C · prędkość dźwięku: ${speedOfSound().toFixed(1)} m/s · sample rate: ${sr/1000} kHz · offset Haasa: ${$('#haas').value} ms · skala: ${$('#scale').value} m/100px</div>
+    <div class="meta">Temp: ${$('#temp').value}°C · prędkość dźwięku: ${speedOfSound().toFixed(1)} m/s · sample rate: ${sr / 1000} kHz · offset Haasa: ${$('#haas').value} ms · skala: ${$('#scale').value} m/100px</div>
     <img src="${img}"><table><tr><th>Element</th><th>Typ</th><th>Rola</th><th>Odległość od 0</th><th>Latencja</th><th>Delay</th><th>Próbki</th><th>Kąt</th></tr>${rows}</table>
-    <p style="font-size:11px;color:#555;margin-top:8px">Delay liczony z odległości w linii prostej od REF (Main 1). Elementy oznaczone „źródło" grają razem z REF (delay 0).</p>
+    <p style="font-size:11px;color:#555;margin-top:8px">Delay liczony z odległości w linii prostej od REF. Elementy oznaczone „źródło" grają razem z REF (delay 0).</p>
     <p style="font-size:11px;color:#888;margin-top:14px">Wygenerowano w PA Delay Designer · ${new Date().toLocaleString('pl-PL')}</p>
     </body></html>`);
-  w.document.close();setTimeout(()=>w.print(),400);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+};
+
+function togglePanel(el) { el.classList.toggle('collapsed'); resize(); }
+$('#mLeft').onclick = () => togglePanel($('#side'));
+$('#mRight').onclick = () => togglePanel($('#insp'));
+['side', 'insp'].forEach(id => $('#' + id).addEventListener('transitionend', e => {
+  if(e.propertyName === 'width') resize();
+}));
+
+if(window.matchMedia('(max-width:900px)').matches) {
+  $('#side').classList.add('collapsed');
+  $('#insp').classList.add('collapsed');
 }
 
-// ukrywanie paneli bocznych — pełny ekran (działa na komputerze i tablecie)
-function togglePanel(el){el.classList.toggle('collapsed');resize();}
-$('#mLeft').onclick=()=>togglePanel($('#side'));
-$('#mRight').onclick=()=>togglePanel($('#insp'));
-// po zakończeniu animacji szerokości jeszcze raz dopasuj canvas (płynność na tablecie)
-['side','insp'].forEach(id=>$('#'+id).addEventListener('transitionend',e=>{if(e.propertyName==='width')resize();}));
-// na wąskich ekranach (tablet w pionie/telefon) domyślnie chowamy panele, by od razu było widać scenę
-if(window.matchMedia('(max-width:900px)').matches){$('#side').classList.add('collapsed');$('#insp').classList.add('collapsed');}
-$('#setRefHint').onclick=()=>alert('Dwuklik (lub dwa tapnięcia) na elemencie ustawia go jako punkt REF (0) — odniesienie dla wszystkich opóźnień.');
+$('#setRefHint').onclick = () => alert('Dwuklik na elemencie ustawia go jako punkt REF (0).');
 
-// Blokada przypadkowego zoomu strony na iPadzie (Safari bywa ignoruje user-scalable=no).
-// Dotyczy tylko gestów dotykowych — myszka/desktop działają bez zmian.
-document.addEventListener('gesturestart',e=>e.preventDefault());
-document.addEventListener('gesturechange',e=>e.preventDefault());
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('gesturechange', e => e.preventDefault());
 
-document.querySelectorAll('.tbtn.dir').forEach(b=>b.classList.toggle('on',b.dataset.dir===frontDir));
+document.querySelectorAll('.tbtn.dir').forEach(b => b.classList.toggle('on', b.dataset.dir === frontDir));
 
-// ====== AUTOZAPIS (localStorage) — chroni przed utratą pracy przy odświeżeniu/zamknięciu karty ======
-const AUTOSAVE_KEY='paDelayAutosave_v1';
-let autosaveTimer=null;
-function autosave(){
-  try{
-    if(!state.els.length && !state.bgImg){localStorage.removeItem(AUTOSAVE_KEY);return;}
-    localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(buildProjectData()));
-  }catch(err){/* np. tryb prywatny w Safari / brak miejsca — autozapis po prostu nie zadziała */}
-}
-function scheduleAutosave(){clearTimeout(autosaveTimer);autosaveTimer=setTimeout(autosave,800);}
-function clearAutosave(){try{localStorage.removeItem(AUTOSAVE_KEY);}catch(err){}}
-setInterval(autosave,5000); // dodatkowy okresowy zapis "na wszelki wypadek" (np. zmiany pól tekstowych)
-window.addEventListener('beforeunload',autosave);
-['temp','sr','haas','scale','bgOp','coneOp'].forEach(id=>$('#'+id).addEventListener('input',scheduleAutosave));
-['selLabel','selLat','selSrc','selAngle','selSpread','selThrow'].forEach(id=>$('#'+id).addEventListener('input',scheduleAutosave));
-$('#btnTheme').addEventListener('click',scheduleAutosave);
-
-// przy starcie: jeśli jest zapisana niedokończona praca z poprzedniej sesji — zapytaj o przywrócenie
-(function tryRestoreAutosave(){
-  let raw;
-  try{raw=localStorage.getItem(AUTOSAVE_KEY);}catch(err){return;}
-  if(!raw)return;
-  let d;
-  try{d=JSON.parse(raw);}catch(err){return;}
-  if(!d||!((d.els&&d.els.length)||d.bgDataUrl))return;
-  if(confirm('Wykryto niezapisaną pracę z poprzedniej sesji (np. po odświeżeniu strony). Przywrócić ją?')){
-    applyProjectData(d);
-  }else{
-    clearAutosave();
-  }
-})();
-
-resize();renderTable();
+resize();
+renderTable();
 </script>
 </body>
 </html>
