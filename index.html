@@ -95,6 +95,39 @@
   .newProjectBtn:hover{filter:brightness(1.1)}
   .noProjects{text-align:center;color:var(--dim);padding:40px 20px}
 
+  /* grupowanie projektów wg autora */
+  .projGroup{margin-bottom:28px}
+  .projGroupTitle{
+    font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--acc2);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:8px;
+  }
+  .projGroupTitle .count{color:var(--dim);font-weight:600;letter-spacing:0;text-transform:none}
+  .projGroupTitle .me{color:var(--acc);font-size:10px;border:1px solid var(--acc);border-radius:10px;padding:1px 7px}
+  .projectCard .by{font-size:10px;color:var(--dim);margin-bottom:8px}
+
+  /* nakładka kopii zapasowych */
+  #backupsScreen{
+    position:fixed;inset:0;z-index:998;background:rgba(8,10,13,.85);
+    display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);
+  }
+  #backupsScreen.active{display:flex}
+  .backupsBox{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    max-width:560px;width:100%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .backupsBox .head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .backupsBox .head h2{font-size:15px;font-weight:800}
+  .backupsBox .list{overflow-y:auto;padding:12px 20px}
+  .backupRow{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:10px 0;border-bottom:1px solid var(--line);font-size:12px;
+  }
+  .backupRow .meta{color:var(--dim)}
+  .backupRow .meta b{color:var(--txt);font-family:'JetBrains Mono',monospace}
+  .backupRow button{padding:6px 12px;font-size:11px;border:1px solid var(--acc);background:none;color:var(--acc);border-radius:6px;cursor:pointer}
+  .backupRow button:hover{background:var(--acc);color:#1a0d00}
+
   header{
     display:flex;align-items:center;gap:14px;padding:10px 16px;
     background:linear-gradient(180deg,#1a212a,#12171d);
@@ -268,8 +301,19 @@
   </div>
   <div class="projectsContent">
     <button class="newProjectBtn" id="btnNewProj">➕ Nowy projekt</button>
-    <div class="projectsList" id="projectsList"></div>
+    <div id="projectsList"></div>
     <div class="noProjects" id="noProjects">Brak projektów. Stwórz pierwszy!</div>
+  </div>
+</div>
+
+<!-- BACKUPS OVERLAY -->
+<div id="backupsScreen">
+  <div class="backupsBox">
+    <div class="head">
+      <h2>🗄 Kopie zapasowe — <span id="backupsProjName"></span></h2>
+      <button class="tbtn" id="btnBackupsClose">✕</button>
+    </div>
+    <div class="list" id="backupsList"></div>
   </div>
 </div>
 
@@ -282,6 +326,7 @@
   <button class="tbtn" id="btnFit" title="Dopasuj widok">⤢ Wyśrodkuj</button>
   <button class="tbtn" id="btnNew">Nowy</button>
   <button class="tbtn" id="btnSave" title="Zapisz w chmurze">☁ Zapisz</button>
+  <button class="tbtn" id="btnBackups" title="Kopie zapasowe tego projektu">🗄 Kopie</button>
   <button class="tbtn" id="btnExport">Eksportuj</button>
   <button class="tbtn" id="btnLoad">Importuj</button>
   <button class="tbtn" id="btnCsv">CSV</button>
@@ -414,6 +459,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
 
 <script>
 // helper do pobierania elementów — musi być zdefiniowany PRZED pierwszym użyciem
@@ -437,6 +483,17 @@ let currentProjectId = null;
 // reszta interfejsu (przełączanie zakładek logowania itd.) i tak działa.
 try {
   firebase.initializeApp(firebaseConfig);
+
+  // ===== APP CHECK (reCAPTCHA v3) — ochrona przed botami =====
+  // WKLEJ poniżej swój SITE KEY z reCAPTCHA (publiczny, nie secret!).
+  // Secret key NIE idzie tutaj — wklejasz go w konsoli Firebase (App Check).
+  const RECAPTCHA_SITE_KEY = '6LdhFx8tAAAAAMJVCAU0EUjJsabQHDKPRCOiyYFk';
+  try {
+    firebase.appCheck().activate(RECAPTCHA_SITE_KEY, true); // true = auto-odświeżanie tokenu
+  } catch(acErr) {
+    console.error('App Check activate failed:', acErr);
+  }
+
   auth = firebase.auth();
   db = firebase.firestore();
 
@@ -524,10 +581,18 @@ $('#btnLogout').onclick = doLogout;       // przycisk na ekranie „Moje projekt
 $('#btnLogoutApp').onclick = doLogout;     // przycisk w nagłówku aplikacji
 
 // ===== PROJECTS SCREEN =====
+// === WSPÓLNE PROJEKTY: jedna kolekcja, każdy zalogowany widzi i edytuje wszystkie ===
+function projectsCol() { return db.collection('projects'); }
+let currentProjectName = '';
+let lastBackupAt = 0;                 // throttle auto-backupów (ms od epoki)
+const BACKUP_INTERVAL = 5 * 60 * 1000; // backup max raz na 5 min aktywnej edycji
+const MAX_BACKUPS = 20;               // ile wersji trzymać na projekt
+
 async function showProjectsScreen() {
   $('#projectsScreen').classList.add('active');
   if(currentProjectId) {
     currentProjectId = null;
+    currentProjectName = '';
     state = {els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
     sel = null;
   }
@@ -535,48 +600,79 @@ async function showProjectsScreen() {
 }
 
 async function loadProjectsList() {
-  if(!currentUser) return;
+  if(!currentUser || !db) return;
   const list = $('#projectsList');
-  list.innerHTML = '';
+  list.innerHTML = '<div class="noProjects">Ładowanie…</div>';
 
-  const snap = await db.collection('users').doc(currentUser.uid).collection('projects')
-    .orderBy('updatedAt', 'desc').limit(50).get();
-
-  if(snap.empty) {
-    $('#noProjects').style.display = 'block';
+  let snap;
+  try {
+    snap = await projectsCol().orderBy('updatedAt', 'desc').limit(300).get();
+  } catch(err) {
+    console.error('loadProjectsList error:', err);
+    list.innerHTML = '<div class="noProjects">Błąd ładowania listy: ' + err.message + '</div>';
     return;
   }
 
+  list.innerHTML = '';
+  if(snap.empty) { $('#noProjects').style.display = 'block'; return; }
   $('#noProjects').style.display = 'none';
+
+  // grupuj projekty wg autora (ownerEmail); kolejność w grupie wg updatedAt (z zapytania)
+  const groups = new Map();
   snap.forEach(doc => {
     const proj = doc.data();
-    const date = proj.updatedAt?.toDate?.() || new Date();
-    const card = document.createElement('div');
-    card.className = 'projectCard';
-    card.innerHTML = `
-      <div class="name">📊 ${proj.name || 'Bez nazwy'}</div>
-      <div class="date">${date.toLocaleDateString('pl-PL')} ${date.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})}</div>
-      <div class="actions">
-        <button class="open">Otwórz</button>
-        <button class="del">🗑</button>
-      </div>
-    `;
+    const owner = proj.ownerEmail || 'nieznany autor';
+    if(!groups.has(owner)) groups.set(owner, []);
+    groups.get(owner).push({ id: doc.id, proj });
+  });
 
-    card.querySelector('.open').onclick = () => openProject(doc.id, proj);
-    card.querySelector('.del').onclick = async () => {
-      if(confirm('Usunąć projekt?')) {
-        await db.collection('users').doc(currentUser.uid).collection('projects').doc(doc.id).delete();
-        loadProjectsList();
-      }
-    };
+  // moja grupa na górze, reszta alfabetycznie
+  const myEmail = currentUser.email;
+  const ordered = [...groups.entries()].sort((a, b) => {
+    if(a[0] === myEmail) return -1;
+    if(b[0] === myEmail) return 1;
+    return a[0].localeCompare(b[0]);
+  });
 
-    list.appendChild(card);
+  ordered.forEach(([owner, items]) => {
+    const isMe = owner === myEmail;
+    const group = document.createElement('div');
+    group.className = 'projGroup';
+    group.innerHTML = `<div class="projGroupTitle">👤 ${owner} <span class="count">(${items.length})</span>${isMe ? '<span class="me">TY</span>' : ''}</div>`;
+    const grid = document.createElement('div');
+    grid.className = 'projectsList';
+
+    items.forEach(({ id, proj }) => {
+      const date = proj.updatedAt?.toDate?.() || new Date();
+      const editedBy = (proj.lastEditedBy && proj.lastEditedBy !== owner) ? ` · ost. edycja: ${proj.lastEditedBy}` : '';
+      const card = document.createElement('div');
+      card.className = 'projectCard';
+      card.innerHTML = `
+        <div class="name">📊 ${proj.name || 'Bez nazwy'}</div>
+        <div class="date">${date.toLocaleDateString('pl-PL')} ${date.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})}${editedBy}</div>
+        <div class="actions">
+          <button class="open">Otwórz</button>
+          <button class="del">🗑</button>
+        </div>`;
+      card.querySelector('.open').onclick = () => openProject(id, proj);
+      card.querySelector('.del').onclick = async () => {
+        if(confirm('Usunąć projekt „' + (proj.name || '') + '”?\n(dotyczy wszystkich użytkowników — projekt jest wspólny)')) {
+          await projectsCol().doc(id).delete();
+          loadProjectsList();
+        }
+      };
+      grid.appendChild(card);
+    });
+
+    group.appendChild(grid);
+    list.appendChild(group);
   });
 }
 
 // otwiera pusty projekt (strona główna) — używane po zalogowaniu i przy „Nowy projekt"
 function newEmptyProject() {
   currentProjectId = null;
+  currentProjectName = '';
   state = {els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
   sel = null;
   view = {zoom:1,ox:0,oy:0};
@@ -591,10 +687,11 @@ $('#btnNewProj').onclick = newEmptyProject;
 
 async function openProject(id, proj) {
   currentProjectId = id;
-  // dane projektu (els, refId, settings, bgDataUrl) są zapisane na górnym poziomie dokumentu,
-  // więc przekazujemy cały obiekt — nie proj.data (którego nie ma)
+  currentProjectName = proj.name || 'Projekt';
+  lastBackupAt = 0; // po otwarciu pozwól zrobić świeży backup przy pierwszej edycji
+  // dane projektu (els, refId, settings, bgDataUrl) są na górnym poziomie dokumentu
   applyProjectData(proj);
-  $('#projTitle').textContent = proj.name || 'Projekt';
+  $('#projTitle').textContent = currentProjectName;
   $('#projectsScreen').classList.remove('active');
   resize();
   renderTable();
@@ -603,16 +700,47 @@ async function openProject(id, proj) {
 
 $('#btnBack').onclick = showProjectsScreen;
 
+// ===== KOPIE ZAPASOWE (backups) =====
+// snapshot AKTUALNIE zapisanej wersji do podkolekcji backups + przycięcie do MAX_BACKUPS
+async function makeBackup(projectId) {
+  if(!db) return;
+  const cur = await projectsCol().doc(projectId).get();
+  if(!cur.exists) return;
+  const d = cur.data();
+  await projectsCol().doc(projectId).collection('backups').add({
+    name: d.name || '',
+    els: d.els || [],
+    refId: d.refId ?? null,
+    settings: d.settings || null,
+    bgDataUrl: d.bgDataUrl || null,
+    savedBy: d.lastEditedBy || d.ownerEmail || '',
+    backedUpAt: new Date()
+  });
+  const all = await projectsCol().doc(projectId).collection('backups').orderBy('backedUpAt', 'desc').get();
+  if(all.size > MAX_BACKUPS) {
+    for(const doc of all.docs.slice(MAX_BACKUPS)) await doc.ref.delete();
+  }
+}
+// regularny backup: tylko jeśli minęło >= BACKUP_INTERVAL od ostatniego
+async function maybeBackup(projectId) {
+  const now = Date.now();
+  if(now - lastBackupAt < BACKUP_INTERVAL) return;
+  lastBackupAt = now;
+  try { await makeBackup(projectId); } catch(err) { console.error('backup failed:', err); }
+}
+
 // ===== AUTO-SAVE TO CLOUD =====
 let autoSaveTimer = null;
 async function cloudSave() {
-  if(!currentUser || !currentProjectId) return;
+  if(!currentUser || !currentProjectId || !db) return;
   try {
+    await maybeBackup(currentProjectId); // regularny backup przed nadpisaniem
     const data = buildProjectData();
-    data.name = $('#projTitle').textContent.replace('(Nowy projekt)', 'Projekt').trim();
+    data.name = currentProjectName || $('#projTitle').textContent.replace('(Nowy projekt)', 'Projekt').trim();
+    data.lastEditedBy = currentUser.email;
     data.updatedAt = new Date();
-
-    await db.collection('users').doc(currentUser.uid).collection('projects').doc(currentProjectId).set(data, {merge:true});
+    // merge:true zachowuje ownerUid/ownerEmail/createdAt z oryginału
+    await projectsCol().doc(currentProjectId).set(data, {merge:true});
   } catch(err) {
     console.error('Cloud save error:', err);
   }
@@ -633,18 +761,23 @@ $('#btnSave').onclick = async () => {
       const name = prompt('Nazwa projektu:', 'Mój projekt');
       if(!name) return;
 
-      const docRef = await db.collection('users').doc(currentUser.uid).collection('projects').add({
+      const docRef = await projectsCol().add({
         name,
+        ownerUid: currentUser.uid,
+        ownerEmail: currentUser.email,
+        lastEditedBy: currentUser.email,
         ...buildProjectData(),
         updatedAt: new Date(),
         createdAt: new Date()
       });
       currentProjectId = docRef.id;
+      currentProjectName = name;
       $('#projTitle').textContent = name;
       alert('✅ Projekt zapisany w chmurze!');
     } else {
+      await makeBackup(currentProjectId); // zawsze backup przy ręcznym „Zapisz"
       await cloudSave();
-      alert('✅ Projekt zaktualizowany!');
+      alert('✅ Projekt zaktualizowany! (utworzono kopię zapasową)');
     }
   } catch(err) {
     console.error('Cloud save error:', err);
@@ -655,6 +788,56 @@ $('#btnSave').onclick = async () => {
     }
   }
 };
+
+// ===== UI KOPII ZAPASOWYCH =====
+async function showBackups() {
+  if(!currentProjectId) { alert('Najpierw zapisz projekt w chmurze („☁ Zapisz"), żeby mieć jego kopie.'); return; }
+  $('#backupsProjName').textContent = currentProjectName || '';
+  const listEl = $('#backupsList');
+  listEl.innerHTML = '<div class="noProjects">Ładowanie…</div>';
+  $('#backupsScreen').classList.add('active');
+  let snap;
+  try {
+    snap = await projectsCol().doc(currentProjectId).collection('backups').orderBy('backedUpAt', 'desc').get();
+  } catch(err) {
+    listEl.innerHTML = '<div class="noProjects">Błąd: ' + err.message + '</div>';
+    return;
+  }
+  if(snap.empty) {
+    listEl.innerHTML = '<div class="noProjects">Brak kopii. Pierwsza powstanie po ~5 min edycji lub przy „☁ Zapisz".</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  snap.forEach(doc => {
+    const b = doc.data();
+    const date = b.backedUpAt?.toDate?.() || new Date();
+    const row = document.createElement('div');
+    row.className = 'backupRow';
+    row.innerHTML = `<div class="meta"><b>${date.toLocaleDateString('pl-PL')} ${date.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})}</b><br>${(b.els ? b.els.length : 0)} elem.${b.savedBy ? ' · ' + b.savedBy : ''}</div>`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Przywróć';
+    btn.onclick = () => restoreBackup(b);
+    row.appendChild(btn);
+    listEl.appendChild(row);
+  });
+}
+function restoreBackup(b) {
+  if(!confirm('Przywrócić tę wersję? Obecny stan zostanie nadpisany (ale najpierw powstanie z niego kopia).')) return;
+  applyProjectData(b);
+  $('#backupsScreen').classList.remove('active');
+  resize(); renderTable(); draw();
+  (async () => {
+    try {
+      await makeBackup(currentProjectId); // zachowaj bieżącą wersję przed przywróceniem
+      await cloudSave();
+      alert('✅ Przywrócono wybraną wersję.');
+    } catch(err) {
+      alert('Przywrócono lokalnie, ale zapis w chmurze się nie udał:\n' + err.message);
+    }
+  })();
+}
+$('#btnBackups').onclick = showBackups;
+$('#btnBackupsClose').onclick = () => $('#backupsScreen').classList.remove('active');
 
 // ===== ORIGINAL PA DELAY APP =====
 const cv = $('#stage'), ctx = cv.getContext('2d');
@@ -1673,13 +1856,17 @@ $('#fileJson').onchange = e => {
     // żeby był dostępny z innych urządzeń. Od tej chwili edycje auto-zapisują się.
     if(currentUser && db) {
       try {
-        const docRef = await db.collection('users').doc(currentUser.uid).collection('projects').add({
+        const docRef = await projectsCol().add({
           name: baseName,
+          ownerUid: currentUser.uid,
+          ownerEmail: currentUser.email,
+          lastEditedBy: currentUser.email,
           ...buildProjectData(),
           updatedAt: new Date(),
           createdAt: new Date()
         });
         currentProjectId = docRef.id;
+        currentProjectName = baseName;
         $('#projTitle').textContent = baseName;
         alert('✅ Zaimportowano i zapisano w chmurze: ' + baseName);
       } catch(err) {
