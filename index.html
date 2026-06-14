@@ -286,7 +286,7 @@
   <button class="tbtn" id="btnLoad">Importuj</button>
   <button class="tbtn" id="btnCsv">CSV</button>
   <button class="tbtn pri" id="btnPdf">PDF</button>
-  <button class="tbtn" id="btnBack">← Projekty</button>
+  <button class="tbtn" id="btnBack">☁ Moje projekty</button>
   <button class="tbtn" id="btnTheme" title="Przełącz motyw">☀︎</button>
   <button class="tbtn" id="mRight" title="Pokaż/ukryj panel boczny (prawy)">📋</button>
   <input type="file" id="fileJson" accept=".json" hidden>
@@ -446,7 +446,9 @@ try {
       $('#appHeader').style.display = 'flex';
       $('#appMain').style.display = 'flex';
       $('#loginScreen').style.display = 'none';
-      showProjectsScreen();
+      // po zalogowaniu otwórz od razu pusty projekt (strona główna);
+      // projekty z chmury są dostępne pod przyciskiem „☁ Moje projekty"
+      newEmptyProject();
     }else{
       currentProjectId = null;
       $('#appHeader').style.display = 'none';
@@ -568,16 +570,20 @@ async function loadProjectsList() {
   });
 }
 
-$('#btnNewProj').onclick = () => {
+// otwiera pusty projekt (strona główna) — używane po zalogowaniu i przy „Nowy projekt"
+function newEmptyProject() {
   currentProjectId = null;
   state = {els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
   sel = null;
+  view = {zoom:1,ox:0,oy:0};
   $('#projTitle').textContent = '(Nowy projekt)';
   $('#projectsScreen').classList.remove('active');
   resize();
   renderTable();
   draw();
-};
+}
+
+$('#btnNewProj').onclick = newEmptyProject;
 
 async function openProject(id, proj) {
   currentProjectId = id;
