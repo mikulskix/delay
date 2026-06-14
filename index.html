@@ -287,6 +287,7 @@
   <button class="tbtn" id="btnCsv">CSV</button>
   <button class="tbtn pri" id="btnPdf">PDF</button>
   <button class="tbtn" id="btnBack">☁ Moje projekty</button>
+  <button class="tbtn" id="btnLogoutApp" title="Wyloguj się">⎋ Wyloguj</button>
   <button class="tbtn" id="btnTheme" title="Przełącz motyw">☀︎</button>
   <button class="tbtn" id="mRight" title="Pokaż/ukryj panel boczny (prawy)">📋</button>
   <input type="file" id="fileJson" accept=".json" hidden>
@@ -512,12 +513,15 @@ $('#registerForm').onsubmit = async e => {
   }
 };
 
-$('#btnLogout').onclick = async () => {
+async function doLogout() {
+  if(!confirm('Wylogować się? Niezapisane zmiany przepadną.')) return;
   await auth.signOut();
   currentProjectId = null;
   state = {els:[],refId:null,bg:null,bgImg:null,bgDataUrl:null};
   sel = null;
-};
+}
+$('#btnLogout').onclick = doLogout;       // przycisk na ekranie „Moje projekty"
+$('#btnLogoutApp').onclick = doLogout;     // przycisk w nagłówku aplikacji
 
 // ===== PROJECTS SCREEN =====
 async function showProjectsScreen() {
