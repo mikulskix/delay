@@ -591,7 +591,9 @@ $('#btnNewProj').onclick = newEmptyProject;
 
 async function openProject(id, proj) {
   currentProjectId = id;
-  applyProjectData(proj.data || {els:[]});
+  // dane projektu (els, refId, settings, bgDataUrl) są zapisane na górnym poziomie dokumentu,
+  // więc przekazujemy cały obiekt — nie proj.data (którego nie ma)
+  applyProjectData(proj);
   $('#projTitle').textContent = proj.name || 'Projekt';
   $('#projectsScreen').classList.remove('active');
   resize();
