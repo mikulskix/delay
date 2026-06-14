@@ -1644,12 +1644,45 @@ $('#fileJson').onchange = e => {
   const f = e.target.files[0];
   if(!f) return;
   const r = new FileReader();
-  r.onload = () => {
-    const d = JSON.parse(r.result);
+  r.onload = async () => {
+    let d;
+    try {
+      d = JSON.parse(r.result);
+    } catch(err) {
+      alert('Nieprawidłowy plik projektu (błąd odczytu JSON).');
+      return;
+    }
     applyProjectData(d);
-    currentProjectId = null;
+
+    // nazwa projektu z nazwy pliku (bez rozszerzenia .json)
+    const baseName = f.name.replace(/\.json$/i, '');
+
+    // integracja z chmurą: zaimportowany projekt od razu zapisz w Firebase jako nowy,
+    // żeby był dostępny z innych urządzeń. Od tej chwili edycje auto-zapisują się.
+    if(currentUser && db) {
+      try {
+        const docRef = await db.collection('users').doc(currentUser.uid).collection('projects').add({
+          name: baseName,
+          ...buildProjectData(),
+          updatedAt: new Date(),
+          createdAt: new Date()
+        });
+        currentProjectId = docRef.id;
+        $('#projTitle').textContent = baseName;
+        alert('✅ Zaimportowano i zapisano w chmurze: ' + baseName);
+      } catch(err) {
+        console.error('Import → cloud save failed:', err);
+        currentProjectId = null;
+        $('#projTitle').textContent = baseName + ' (lokalnie)';
+        alert('Zaimportowano, ale zapis w chmurze się nie udał:\n' + err.message +
+              '\n\nMożesz spróbować ręcznie przyciskiem „☁ Zapisz".');
+      }
+    } else {
+      currentProjectId = null;
+    }
   };
   r.readAsText(f);
+  e.target.value = ''; // pozwala ponownie zaimportować ten sam plik
 };
 
 $('#btnCsv').onclick = () => {
